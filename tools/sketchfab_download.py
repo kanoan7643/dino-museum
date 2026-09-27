@@ -1,6 +1,8 @@
 """Download CC BY dinosaur models from Sketchfab as .glb into models/.
 
-Needs a Sketchfab API token (https://sketchfab.com/settings/password):
+Needs a Sketchfab API token (https://sketchfab.com/settings/password), either
+in SKETCHFAB_TOKEN or injected by the environment's API credentials for
+api.sketchfab.com (header "Authorization: Token <token>"):
     SKETCHFAB_TOKEN=xxxx python tools/sketchfab_download.py [species ...]
 With no species given, every entry in PICKS is downloaded. The zip is saved
 under .raw/ and the glTF inside is packed to models/<species>.glb. If
@@ -52,7 +54,7 @@ def fetch(species, uid, token):
 def main():
     token = os.environ.get('SKETCHFAB_TOKEN')
     if not token:
-        sys.exit('Set SKETCHFAB_TOKEN to your Sketchfab API token.')
+        print('SKETCHFAB_TOKEN not set; relying on injected API credentials.')
     os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     for sp in sys.argv[1:] or PICKS:
         try:
