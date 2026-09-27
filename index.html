@@ -355,16 +355,17 @@ const STATE_ZH={stand:'站立',walk:'走路',run:'跑步',rest:'休息',eat:'進
 const MODELS={
   velociraptor:{f:'models/velociraptor.glb',title:'PBR Velociraptor (Animated)',by:'Ferocious Industries',url:'https://sketchfab.com/3d-models/pbr-velociraptor-animated-8f1744af7b0847a2aabe3df90be802f0',
     anim:{stand:'Idle_01',walk:'Walk',run:'Sprint',rest:['Go to Sleep','Sleep_Loop'],eat:'Eat Prey',roar:'Roar_01'},
-    bones:{head:/^Head_/,jaw:/^Jaw_2_0/,mouth:/^Jaw_2_end_0/,neck:/^Neck_2/,body:/^Spine_2/,tail:/^Tail_6/,leg:/^LowerLeg\.R/,arm:/^LowerArm\.R/,claw:/^BigToe2\.R/},
+    bones:{head:/^Head_/,jaw:/^Jaw_2_0/,mouth:/^Jaw_2_end_0/,neck:/^Neck_2/,body:/^Spine_2/,tail:/^Tail_6/,leg:/^LowerLeg\.?R/,arm:/^LowerArm\.?R/,claw:/^BigToe2\.?R/},
     note:'此模型沿用電影常見的鱗片造型；化石上的羽莖瘤顯示真正的迅猛龍長有羽毛。'},
   stegosaurus:{f:'models/stegosaurus.glb',title:'PBR Stegasaurus (Animated)',by:'Ferocious Industries',url:'https://sketchfab.com/3d-models/pbr-stegasaurus-animated-ec254ea1554941fe8a131f62db0faf3d',
     anim:{stand:'IdleA',walk:'Walk',run:'Run',rest:['IdleB',.6],eat:'Eat',roar:'Roar'},
-    bones:{head:/^Head_/,jaw:/^Jaw_0/,mouth:/^Jaw_end/,neck:/^Neck2/,body:/^Spine2/,plate:/^Spine2/,spikes:/^Tail7_0/,tail:/^Tail5/,leg:/^LowerLeg\.R/,fleg:/^LowerArm\.R/}},
+    bones:{head:/^Head_/,jaw:/^Jaw_0/,mouth:/^Jaw_end/,neck:/^Neck2/,body:/^Spine2/,plate:/^Spine2/,spikes:/^Tail7_0/,tail:/^Tail5/,leg:/^LowerLeg\.?R/,fleg:/^LowerArm\.?R/}},
   pachycephalosaurus:{f:'models/pachycephalosaurus.glb',title:'PBR Pachycephalasaurus (Animated)',by:'Ferocious Industries',url:'https://sketchfab.com/3d-models/pbr-pachycephalasaurus-animated-6eea5cee4afa4730bf75c6329a43e56d',
     anim:{stand:'IdleA',walk:'Walk',run:'Run',rest:['GoToSleep','SleepLoop'],eat:'EatLow',roar:'Roar'},
-    bones:{head:/^Head_/,dome:/^Head_/,jaw:/^BottomJaw_0/,mouth:/^BottomJaw_end/,neck:/^Neck2/,body:/^Spine2/,tail:/^Tail5/,leg:/^LowerLeg\.R/,arm:/^LowerArm\.R/}},
+    bones:{head:/^Head_/,dome:/^Head_/,jaw:/^BottomJaw_0/,mouth:/^BottomJaw_end/,neck:/^Neck2/,body:/^Spine2/,tail:/^Tail5/,leg:/^LowerLeg\.?R/,arm:/^LowerArm\.?R/}},
   trex:{f:'models/trex.glb',title:'Animated Tyrannosaurus Rex Dinosaur Running Loop',by:'LasquetiSpice',url:'https://sketchfab.com/3d-models/animated-tyrannosaurus-rex-dinosaur-running-loop-38007d947ae74dea83988cb0b08ee053',
-    anim:{stand:'idle',walk:['run',.5],run:'run',rest:['idle',.45],eat:'bite',roar:'roar'},
+    anim:{stand:'idle',walk:['run',.5],run:'run',rest:['idle',.45],eat:['idle',.6],roar:'roar'},
+    eatRig:{spine:[/^bn_Spine1\.?5_/,/^bn_Spine2\.?6_/],neck:[/^bn_Neck\.?7_/,/^bn_Neck1\.?8_/,/^bn_Neck2\.?9_/],head:/^bn_Head/,jaw:/^bn_Jaw/,tail:[/^bn_Tail01/,/^bn_Tail02/,/^bn_Tail03/],w:[.3,.22,.2,.16,.12]},
     bones:{head:/^bn_Head/,jaw:/^bn_Jaw/,mouth:/^bn_Tongue3/,neck:/^bn_Neck1/,body:/^bn_Spine1/,tail:/^bn_Tail05/,leg:/^bn_RightLeg/,arm:/^bn_RightForeArm/}}
 };
 
@@ -1007,7 +1008,11 @@ function solveEat(X,targetY,base){const c=Object.assign({dy:0,pitch:0,neck:0,hea
 function enterEat(){
   if(!D)return;disposeObj(prop);prop=null;
   if(D.gl){let local,rotY=D.root.rotation.y;const fx=D.box.max.x;
-    if(D.sp.diet==='carn'){const len=clamp(D.sp.len*.45,.5,6);prop=makePrey(len);rotY+=Math.PI/2;local=new V3(fx+PREY_B.hT[1]*len/10*.3,0,prop.userData.axis);}
+    if(D.sp.diet==='carn'){const len=clamp(D.sp.len*.45,.5,6);prop=makePrey(len);rotY+=Math.PI/2;
+      if(D.er){const ty=prop.userData.top*.92,ev=q=>{erReset(D);D.mixer.update(0);eatOverlay(D,q,0,0,0);return mouthLocal(D);};let best=0,by=1e9;
+        for(let q=0;q<=1.35;q+=.02){const y=ev(q).y;if(y<by){by=y;best=q;}if(y<=ty){best=q;break;}}
+        D.eatP=best;const m=ev(best);erReset(D);D.mixer.update(0);local=new V3(m.x,0,prop.userData.axis+m.z);}
+      else local=new V3(fx+PREY_B.hT[1]*len/10*.3,0,prop.userData.axis);}
     else{const hf=clamp(D.b.H*.32,.3,1.1);prop=makeFerns(hf);local=new V3(fx*.97,0,0);}
     D.root.updateMatrixWorld(true);const w=D.root.localToWorld(local);prop.position.set(w.x,0,w.z);prop.rotation.y=rotY;scene.add(prop);
     prop.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});D.eat={};return;}
@@ -1088,6 +1093,7 @@ function setupGL(d,cfg,g){
   const root=new THREE.Group();root.add(pivot);root.updateMatrixWorld(true);
   const D={sp:d,b:d.b,root,gl:true,cfg,mixer,actions,curA:null,A:{},c:{v:0},Rp:Math.max(7,d.len*1.25),theta:0,disp:[],box:skinnedBox(root)};
   for(const k in cfg.bones){const bn=find(cfg.bones[k]);if(bn){const o=new THREE.Object3D();bn.add(o);D.A[k]=o;}}
+  if(cfg.eatRig){const r=cfg.eatRig;D.er={spine:r.spine.map(find).filter(Boolean),neck:r.neck.map(find).filter(Boolean),head:find(r.head),jaw:find(r.jaw),tail:r.tail.map(find).filter(Boolean),w:r.w};D.eb=0;D.eatP=0;D.erB=[...D.er.spine,...D.er.neck,D.er.head,D.er.jaw,...D.er.tail].filter(Boolean);D.erQ=D.erB.map(b=>b.quaternion.clone());}
   if(!D.A.mouth)D.A.mouth=D.A.head;if(!D.A.body){D.A.body=new THREE.Object3D();root.add(D.A.body);}
   if(actions[st])actions[st].stop();glWant(D,cfg.anim.stand);mixer.update(0);
   return D;}
@@ -1098,10 +1104,21 @@ function glWant(D,spec){if(!spec)return;let name,ts=1,once=false,seq=null;
   if(seq){const a0=D.actions[seq[0]],a1=D.actions[seq[1]];if(!a0||!a1)return glWant(D,seq[1]||seq[0]);if(D.curA===a1)return;
     if(D.curA===a0){if(a0.time>=a0.getClip().duration-.05)glPlay(D,seq[1]);return;}glPlay(D,seq[0],true);return;}
   const a=D.actions[name];if(!a)return;if(D.curA===a){if(!once)a.timeScale=ts;return;}glPlay(D,name,once,ts);}
+const _qa=new THREE.Quaternion(),_qb=new THREE.Quaternion(),_qc=new THREE.Quaternion(),_qr=new THREE.Quaternion(),UPV=new V3(0,1,0);
+// Bones the base clip does not animate would otherwise keep last frame's overlay, so reset them every frame.
+function erReset(D){D.erB.forEach((b,i)=>b.quaternion.copy(D.erQ[i]));}
+function rotW(bone,axis,ang){if(!bone||!ang)return;bone.parent.getWorldQuaternion(_qa);bone.getWorldQuaternion(_qb);_qc.setFromAxisAngle(axis,ang).multiply(_qb);bone.quaternion.copy(_qa.invert().multiply(_qc));bone.updateMatrixWorld(true);}
+// Bend spine and neck down toward the ground, lift the tail to balance, open the jaw and add tearing motion.
+function eatOverlay(D,p,pull,shake,jaw){const er=D.er;D.root.updateMatrixWorld(true);D.root.getWorldQuaternion(_qr);const lat=new V3(0,0,1).applyQuaternion(_qr);
+  const ns=er.spine.length;[...er.spine,...er.neck].forEach((b,i)=>rotW(b,lat,-p*(er.w[i]||.1)+(i>=ns?pull*.14:0)));
+  rotW(er.head,lat,-p*.18+pull*.38);rotW(er.head,UPV,shake);er.tail.forEach(b=>rotW(b,lat,p*.16));rotW(er.jaw,lat,-jaw);}
 function updateGL(dt,t){const c=D.c,b=D.b,tv=state==='walk'?b.speed[0]:state==='run'?b.speed[1]:0;c.v+=(tv-c.v)*Math.min(1,dt*1.3);
   D.theta+=c.v/D.Rp*dt;D.root.position.set(Math.sin(D.theta)*D.Rp,0,D.Rp-Math.cos(D.theta)*D.Rp);D.root.rotation.y=-D.theta;
   if(roarGL&&t>=roarGL.until)roarGL=null;
-  glWant(D,roarGL?[D.cfg.anim.roar,'once']:D.cfg.anim[state]);D.mixer.update(dt);}
+  glWant(D,roarGL?[D.cfg.anim.roar,'once']:D.cfg.anim[state]);if(D.er)erReset(D);D.mixer.update(dt);
+  if(D.er){D.eb+=((state==='eat'&&!roarGL?1:0)-D.eb)*Math.min(1,dt*1.4);
+    if(D.eb>.002){const cy=(t%3.4)/3.4,pull=Math.sin(Math.PI*clamp((cy-.5)/.32,0,1)),bite=cy<.42?.12+.08*Math.sin(t*9):cy<.5?.55*smooth(.42,.5,cy):.55*(1-smooth(.5,.8,cy)),e=D.eb;
+      eatOverlay(D,D.eatP*e,pull*e,.22*Math.sin(t*15)*pull*e,bite*e);}}}
 /* ---------- narration ---------- */
 const PART={head:'頭部',jaw:'口部',neck:'頸部',body:'軀幹',tail:'尾巴',leg:'後肢',fleg:'前肢',arm:'前肢',claw:'鐮刀爪',thumb:'拇指尖刺',plate:'背部骨板',spikes:'尾端骨刺',sail:'背帆',frill:'頸盾',horn:'額角',crest:'頭冠',dome:'頭頂圓頂',club:'尾錘',armor:'骨質鱗甲'};
 const synth=window.speechSynthesis||null;let voice=null,voices=[],voiceOn=!!synth,vRate=1,vPitch=1;
