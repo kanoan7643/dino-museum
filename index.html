@@ -1,0 +1,1213 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>中生代恐龍館</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700;900&display=swap">
+<style>
+:root{
+  --bg:#E3E4DC; --surface:#F1F1EB; --ink:#1D2320; --muted:#5E665F; --line:#C8CABE;
+  --accent:#2E6B5A; --accent-ink:#F1F1EB; --amber:#C98A22; --amber-ink:#1D1A12;
+  --tri:#812B92; --jur:#2A97AE; --cre:#62A63A;
+  --serif:"Noto Serif TC","Songti TC",serif;
+  --sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#141816; --surface:#1C221F; --ink:#E4E6DE; --muted:#9AA39A; --line:#313935;
+    --accent:#78C0A7; --accent-ink:#0F221B; --amber:#E2A748; --amber-ink:#1D1A12;
+    --tri:#B170BF; --jur:#5CC6DA; --cre:#95D168;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141816; --surface:#1C221F; --ink:#E4E6DE; --muted:#9AA39A; --line:#313935;
+  --accent:#78C0A7; --accent-ink:#0F221B; --amber:#E2A748; --amber-ink:#1D1A12;
+  --tri:#B170BF; --jur:#5CC6DA; --cre:#95D168;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6}
+.wrap{max-width:1360px;margin:0 auto;padding-inline:20px;padding-block:22px 40px;display:grid;gap:20px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px 24px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+h1{font-family:var(--serif);font-weight:900;font-size:clamp(26px,3.4vw,38px);line-height:1.15;margin:2px 0 0;text-wrap:balance}
+.hint{font-size:13px;color:var(--muted);margin:0}
+kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line);border-radius:4px;padding:0 5px;background:var(--surface)}
+
+.main{display:grid;grid-template-columns:minmax(0,1fr) 370px;gap:20px;align-items:start}
+@media (max-width:960px){.main{grid-template-columns:1fr}}
+
+.stage{position:relative;height:min(72vh,680px);min-height:400px;border-radius:14px;overflow:hidden;background:#b9c9cf;border:1px solid var(--line);touch-action:none}
+@media (max-width:600px){.stage{height:62vh;min-height:380px}}
+.stage canvas{display:block;width:100%;height:100%;cursor:grab}
+.stage canvas:active{cursor:grabbing}
+.layer{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.lead{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.lead line{stroke:#fff;stroke-width:1.6;stroke-dasharray:4 3}
+.lead .ring{fill:none;stroke:var(--amber);stroke-width:2.5}
+.lead .dot{fill:var(--amber);stroke:#fff;stroke-width:1.5}
+.tag{position:absolute;left:0;top:0;font:500 11px/1 var(--mono);padding:4px 7px;border-radius:5px;background:rgba(20,24,22,.62);color:#eef0ea;white-space:nowrap}
+
+.topbar,.toolbar{position:absolute;left:12px;right:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;pointer-events:none}
+.topbar{top:12px;justify-content:space-between}
+.toolbar{bottom:12px;justify-content:space-between}
+.topbar>*,.toolbar>*{pointer-events:auto}
+.grp{display:flex;flex-wrap:wrap;gap:6px}
+.cap{font:500 12px/1.4 var(--mono);color:#eef0ea;background:rgba(20,24,22,.55);border-radius:8px;padding:6px 10px;backdrop-filter:blur(6px)}
+.cap b{font-weight:600}
+.tbtn{font:500 13px/1 var(--sans);height:34px;padding:0 12px;border-radius:8px;border:1px solid rgba(255,255,255,.25);background:rgba(20,24,22,.55);color:#eef0ea;cursor:pointer;backdrop-filter:blur(6px);display:inline-flex;align-items:center;gap:6px}
+.tbtn:hover{background:rgba(20,24,22,.72)}
+.tbtn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.tbtn:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.tbtn.sq{width:34px;padding:0;justify-content:center;font-size:18px}
+.tbtn.warm{background:rgba(160,70,40,.75);border-color:rgba(255,200,160,.35)}
+.leftcol{display:grid;gap:12px;min-width:0}
+.lab{position:absolute;left:0;top:0;font:700 13px/1 var(--sans);padding:6px 10px;border-radius:14px;background:rgba(20,24,22,.72);color:#fff;white-space:nowrap;pointer-events:none;backdrop-filter:blur(4px)}
+.lab i{font-style:normal;color:var(--amber);margin-right:6px;font-family:var(--mono)}
+.narr{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:grid;gap:10px}
+.nhead{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.now{display:flex;align-items:center;gap:8px;flex:1 1 220px;min-width:0}
+.now .n{flex:none;min-width:24px;height:24px;padding:0 7px;border-radius:12px;background:var(--amber);color:var(--amber-ink);font:600 11px/24px var(--mono);text-align:center}
+.now b{font-family:var(--serif);font-size:17px}
+.now .prog{margin-left:auto;font:500 12px var(--mono);color:var(--muted)}
+.nctl{display:flex;gap:6px}
+.nbtn{font:500 13px var(--sans);height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:none;color:var(--ink);cursor:pointer}
+.nbtn:hover{border-color:var(--muted)}
+.nbtn.primary{background:var(--amber);border-color:var(--amber);color:var(--amber-ink);font-weight:700}
+.nbtn:focus-visible,.vset select:focus-visible,.vset input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.nbtn:disabled{opacity:.5;cursor:not-allowed}
+.sub{margin:0;font-size:16px;line-height:1.7;max-width:70ch;padding:10px 12px;border-radius:8px;background:color-mix(in srgb,var(--amber) 10%,transparent);border-left:3px solid var(--amber)}
+.vset{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;font-size:13px;color:var(--muted);padding-top:10px;border-top:1px solid var(--line)}
+.vset select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:7px;height:32px;padding:0 8px;max-width:100%;flex:1 1 220px;min-width:0}
+.vset input[type=range]{width:90px;accent-color:var(--accent)}
+.vset .chk{display:inline-flex;align-items:center;gap:5px;color:var(--ink)}
+.vn{margin:0;font-size:12px;color:var(--muted)}
+.speaking .now .n{animation:blink 1s infinite}
+.tbtn.tour{background:var(--amber);color:var(--amber-ink);border-color:var(--amber);font-weight:700}
+@keyframes blink{50%{opacity:.45}}
+.busy{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+.busy span{font:500 13px var(--mono);color:#eef0ea;background:rgba(20,24,22,.6);padding:8px 14px;border-radius:8px}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;display:grid;gap:20px}
+.chip{display:inline-flex;align-items:center;gap:7px;font:500 12px/1 var(--mono);color:var(--muted)}
+.chip i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.name{display:grid;gap:2px}
+.name h2{font-family:var(--serif);font-weight:900;font-size:42px;line-height:1.1;margin:6px 0 0;letter-spacing:.02em}
+.sci{font-family:var(--serif);font-style:italic;font-size:17px}
+.mean{font-size:13px;color:var(--muted)}
+.desc{margin:0;max-width:65ch}
+dl{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;margin:0;padding-block:14px;border-block:1px solid var(--line)}
+dl div{display:grid;gap:1px;min-width:0}
+dt{font-size:11px;letter-spacing:.08em;color:var(--muted)}
+dd{margin:0;font-weight:500;font-variant-numeric:tabular-nums}
+dd.num{font-family:var(--mono);font-size:16px}
+dl .wide{grid-column:1/-1}
+.sect{font-size:12px;letter-spacing:.1em;color:var(--muted);margin:0 0 8px;font-weight:700;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sect button{font:600 12px var(--sans);letter-spacing:0;border:1px solid var(--amber);background:none;color:var(--ink);border-radius:7px;height:28px;padding:0 10px;cursor:pointer}
+.sect button:focus-visible{outline:2px solid var(--accent)}
+.facts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.facts button{width:100%;text-align:left;display:flex;gap:10px;align-items:flex-start;border:1px solid transparent;background:none;color:var(--ink);font:inherit;font-size:14px;line-height:1.55;padding:8px;border-radius:8px;cursor:pointer}
+.facts button:hover{background:color-mix(in srgb,var(--line) 40%,transparent)}
+.facts button.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.facts .pl{margin-left:auto;flex:none;font-size:11px;color:var(--muted);align-self:center}
+.facts .n{flex:none;margin-top:1px;width:22px;height:22px;border-radius:50%;background:var(--amber);color:var(--amber-ink);font:600 11px/22px var(--mono);text-align:center}
+.facts button.on .n{background:var(--accent);color:var(--accent-ink)}
+.bars{display:grid;gap:1px}
+.bar{display:grid;grid-template-columns:62px minmax(0,1fr) 50px;gap:10px;align-items:center;border:0;background:none;color:var(--ink);font:inherit;font-size:13px;padding:3px 2px;border-radius:6px;cursor:pointer;text-align:left}
+.bar:hover{background:color-mix(in srgb,var(--line) 40%,transparent)}
+.bar:focus-visible{outline:2px solid var(--accent)}
+.bar .trk{height:7px;border-radius:2px;background:color-mix(in srgb,var(--line) 70%,transparent);position:relative;overflow:hidden}
+.bar .trk span{position:absolute;inset:0 auto 0 0;background:var(--muted);border-radius:2px}
+.bar .v{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.bar.on{font-weight:700}
+.bar.on .trk span{background:var(--accent)}
+.bar.on .v{color:var(--ink)}
+.bar.ref{cursor:default;color:var(--muted)}
+.bar.ref:hover{background:none}
+.bar.ref .trk span{background:var(--amber)}
+.note{font-size:12px;color:var(--muted);margin:0}
+
+.tlsec{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 22px 20px;display:grid;gap:12px}
+.tlhead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 16px}
+.tlhead h3{font-family:var(--serif);font-size:20px;margin:0}
+.tlscroll{overflow-x:auto;padding-bottom:4px}
+.tl{position:relative;min-width:860px;height:200px}
+.band{position:absolute;top:0;height:34px;display:flex;align-items:center;padding-left:10px;font-size:13px;font-weight:700;border-left:1px solid var(--surface)}
+.band::before{content:"";position:absolute;inset:0;background:var(--c);opacity:.22}
+.band::after{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:var(--c)}
+.band span,.band small{position:relative}
+.band small{font:400 11px var(--mono);color:var(--muted);margin-left:8px}
+.tick{position:absolute;top:38px;font:500 11px var(--mono);color:var(--muted);transform:translateX(-50%)}
+.tick.first{transform:none}.tick.last{transform:translateX(-100%)}
+.mk{position:absolute;top:62px;display:flex;align-items:center;gap:6px;border:0;background:none;padding:2px 4px;color:var(--ink);font:inherit;font-size:13px;cursor:pointer;border-radius:6px;white-space:nowrap}
+.mk .rng{height:10px;min-width:8px;border-radius:2px;background:var(--c);flex:none}
+.mk small{font:400 11px var(--mono);color:var(--muted)}
+.mk.right{flex-direction:row-reverse}
+.mk:hover{background:color-mix(in srgb,var(--line) 45%,transparent)}
+.mk.on{font-weight:700;outline:1.5px solid var(--accent)}
+.mk:focus-visible{outline:2px solid var(--accent)}
+@media (prefers-reduced-motion:reduce){.speaking .now .n{animation:none}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">Mesozoic Era · 252–66 Ma · 15 species</div>
+      <h1>中生代恐龍館</h1>
+    </div>
+    <p class="hint">拖曳旋轉 · 滾輪或雙指縮放 · 按「語音解說」逐一講解構造 · <kbd>←</kbd> <kbd>→</kbd> 切換物種 · <kbd>1</kbd>–<kbd>5</kbd> 切換動作</p>
+  </header>
+
+  <div class="main">
+    <div class="leftcol">
+    <div class="stage" id="stage">
+      <div class="layer" id="layer"></div>
+      <div class="busy" id="busy"><span id="busyT">載入 3D 場景中…</span></div>
+      <div class="topbar">
+        <div class="cap" id="cap">&nbsp;</div>
+        <div class="grp">
+          <button class="tbtn sq" id="prev" aria-label="上一種恐龍">‹</button>
+          <button class="tbtn sq" id="next" aria-label="下一種恐龍">›</button>
+        </div>
+      </div>
+      <svg class="lead" id="lead" style="display:none" aria-hidden="true"><line id="leadL"></line><circle class="ring" id="leadR" r="13"></circle><circle class="dot" id="leadD" r="4"></circle></svg>
+      <div class="lab" id="lab" hidden></div>
+      <div class="toolbar">
+        <div class="grp" role="group" aria-label="動作">
+          <button class="tbtn" data-s="stand" aria-pressed="false">站立</button>
+          <button class="tbtn" data-s="walk" aria-pressed="false">走路</button>
+          <button class="tbtn" data-s="run" aria-pressed="false">跑步</button>
+          <button class="tbtn" data-s="rest" aria-pressed="false">休息</button>
+          <button class="tbtn" data-s="eat" aria-pressed="false">進食</button>
+          <button class="tbtn warm" id="bRoar">吼叫</button>
+        </div>
+        <div class="grp">
+          <button class="tbtn" id="bRot" aria-pressed="true">自動環繞</button>
+          <button class="tbtn" id="bHuman" aria-pressed="true">人類比例</button>
+          <button class="tbtn" id="bReset">重設視角</button>
+        </div>
+      </div>
+    </div>
+    <section class="narr" id="narr" aria-label="語音解說">
+      <div class="nhead">
+        <button class="nbtn primary" id="bTour">▶ 語音解說</button>
+        <div class="now"><span class="n" id="coN">—</span><b id="coT">逐段講解這隻恐龍的構造</b><span class="prog" id="coP"></span></div>
+        <div class="nctl" id="nctl" hidden><button class="nbtn" id="tPrev">上一段</button><button class="nbtn" id="tNext">下一段</button><button class="nbtn" id="tStop">結束</button></div>
+      </div>
+      <p class="sub" id="coX" hidden aria-live="polite"></p>
+      <div class="vset">
+        <label for="vSel">配音</label><select id="vSel"><option>載入語音中…</option></select>
+        <label for="vRate">語速</label><input type="range" id="vRate" min="0.7" max="1.4" step="0.05" value="1">
+        <label for="vPitch">音調</label><input type="range" id="vPitch" min="0.7" max="1.3" step="0.05" value="1">
+        <button class="nbtn" id="vTry">試聽</button>
+        <label class="chk"><input type="checkbox" id="vOn" checked>播放聲音</label>
+      </div>
+      <p class="vn" id="coV" hidden></p>
+    </section>
+    </div>
+    <aside class="panel" id="panel" aria-live="polite"></aside>
+  </div>
+
+  <section class="tlsec">
+    <div class="tlhead">
+      <h3>地質年代</h3>
+      <p class="note">橫軸依實際年代比例排列，單位為百萬年前（Ma）。色帶採國際地層委員會（ICS）年代表配色。</p>
+    </div>
+    <div class="tlscroll"><div class="tl" id="tl"></div></div>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function(){
+'use strict';
+const PERIODS={
+  tri:{zh:'三疊紀',en:'Triassic',from:252,to:201,v:'--tri'},
+  jur:{zh:'侏羅紀',en:'Jurassic',from:201,to:145,v:'--jur'},
+  cre:{zh:'白堊紀',en:'Cretaceous',from:145,to:66,v:'--cre'}
+};
+
+/* =====================================================================
+   Species data. All body numbers are in meters (rest pose, side view).
+   ===================================================================== */
+const SP=[
+{id:'coelophysis',zh:'腔骨龍',sci:'Coelophysis bauri',mean:'屬名意為「中空的形態」',per:'tri',range:[216,203],when:'晚三疊紀 · 約 2.16–2.03 億年前',len:3,diet:'carn',
+ stats:[['臀高','約 0.7 m',1],['體重','約 20 kg',1],['食性','肉食（小型動物、魚）'],['化石產地','美國新墨西哥州']],
+ desc:'最早期的獸腳類恐龍之一，體型輕巧、奔跑迅速。新墨西哥州幽靈牧場一處化石層就出土了上千具骨骼，是研究得最透徹的三疊紀恐龍。',
+ facts:[['head','1998 年，一具腔骨龍頭骨隨奮進號太空梭（STS-89）進入太空，並停靠和平號太空站。'],['body','骨骼中空、骨壁很薄，屬名由此而來，這項特徵與現代鳥類相同。'],['tail','細長的尾巴在奔跑時充當平衡桿，讓牠能以兩足高速移動。']],
+ b:{H:.72,trunk:.62,pitch:.06,hT:[.085,.105,.085],wT:[.06,.08,.065],neck:{len:.48,n:4,ang:.7,curve:-.12,h1:.028,w1:.024},tail:{len:1.5,n:9,droop:.03,curve:.005,pow:1.25},
+  head:{L:.23,H:.042,W:.032,snout:.38,snoutW:.45,jaw:.45,ang:-.2,teeth:13,toothL:.007,eyeX:.3,eyeR:.009},hind:{l:[.27,.3,.15,.08],r:[.045,.022,.011],alpha:.35,fwd:.06,foot:'claw',toes:3},
+  arm:{l:[.1,.085,.06],r:.011,fingers:3},skin:{base:'#8C6B3A',belly:'#DCCB9E',pat:'stripes',patC:'#4A3620',patN:20,cell:.005},speed:[1.4,8],restNeck:-.7}},
+{id:'plateosaurus',zh:'板龍',sci:'Plateosaurus engelhardti',mean:'屬名意為「平坦的蜥蜴」',per:'tri',range:[214,204],when:'晚三疊紀 · 約 2.14–2.04 億年前',len:8,diet:'herb',
+ stats:[['臀高','約 1.9 m',1],['體重','約 0.6–4 t',1],['食性','草食'],['化石產地','德國、瑞士、格陵蘭']],
+ desc:'早期的大型植食恐龍，是日後巨大蜥腳類的遠親。長脖子、小腦袋，以後肢行走，用帶有大拇指爪的前肢抓取植物。',
+ facts:[['body','德國特羅辛根一帶出土了數十具骨骼，是歐洲化石最豐富的恐龍之一。'],['arm','前肢無法把掌心轉向地面，因此不能以四足行走，是真正的二足動物。'],['leg','骨骼組織學顯示牠的成長速度受環境影響，成年個體體型差異很大。']],
+ b:{H:1.9,trunk:1.8,pitch:.1,hT:[.33,.46,.36],wT:[.27,.38,.29],neck:{len:1.9,n:6,ang:.5,curve:-.04,h1:.085,w1:.075},tail:{len:3.8,n:10,droop:.06,curve:.008,pow:1.2},
+  head:{L:.32,H:.085,W:.065,snout:.5,snoutW:.55,jaw:.42,ang:-.2,eyeX:.38,eyeR:.017},hind:{l:[.8,.66,.38,.24],r:[.17,.08,.045],alpha:.3,fwd:.06,foot:'claw',toes:4},
+  arm:{l:[.36,.26,.16],r:.05,fingers:3},skin:{base:'#7C7550',belly:'#D0C7A2',pat:'mottled',patC:'#4C472C',cell:.02},speed:[1.2,5],restNeck:-.5}},
+{id:'allosaurus',zh:'異特龍',sci:'Allosaurus fragilis',mean:'屬名意為「奇異的蜥蜴」',per:'jur',range:[155,145],when:'晚侏羅紀 · 約 1.55–1.45 億年前',len:8.5,diet:'carn',
+ stats:[['臀高','約 2.3 m',1],['體重','約 1.7–2.3 t',1],['食性','肉食'],['化石產地','北美洲、葡萄牙']],
+ desc:'侏羅紀晚期最常見的大型掠食者，比暴龍早了約 8000 萬年。身形比暴龍輕巧，前肢較長，三根手指都有彎曲的大爪。',
+ facts:[['head','眼睛前方有一對角狀眉脊，可能用於展示或辨識同類。'],['jaw','咬合力不算強，研究推測牠會張大嘴，用上顎像斧頭一樣劈砍獵物。'],['leg','編號 MOR 693 的「大艾爾」標本全身有 19 處傷病痕跡，腳部感染可能是牠的死因。']],
+ b:{H:2.3,trunk:2.1,pitch:.06,hT:[.45,.66,.52],wT:[.33,.46,.37],neck:{len:.95,n:3,ang:.55,curve:-.22,h1:.21,w1:.17},tail:{len:4.3,n:10,droop:.02,curve:.01,pow:1.2},
+  head:{L:.85,H:.25,W:.15,snout:.45,snoutW:.5,jaw:.42,ang:-.1,teeth:15,toothL:.05,eyeX:.3,eyeR:.033,brows:'horn'},hind:{l:[.95,.85,.45,.3],r:[.32,.13,.065],alpha:.32,fwd:.08,foot:'claw',toes:3},
+  arm:{l:[.36,.3,.26],r:.06,fingers:3},skin:{base:'#7A5A3A',belly:'#CDB48C',pat:'stripes',patC:'#4B3522',patN:15,cell:.03},speed:[2,8.3]}},
+{id:'stegosaurus',zh:'劍龍',sci:'Stegosaurus stenops',mean:'屬名意為「有屋頂的蜥蜴」',per:'jur',range:[155,145],when:'晚侏羅紀 · 約 1.55–1.45 億年前',len:9,diet:'herb',
+ stats:[['臀高','約 2.1 m',1],['體重','約 3.5–7 t',1],['食性','草食（低矮蕨類、蘇鐵）'],['化石產地','北美洲、葡萄牙']],
+ desc:'背上兩列交錯排列的骨板和尾端四根骨刺是牠的招牌。後肢比前肢長得多，頭部低垂，以貼近地面的植物為食。',
+ facts:[['plate','骨板共 17 片，內部布滿血管通道，可能用於展示或調節體溫，最大的一片高約 60 cm。'],['spikes','尾端四根骨刺長 60–90 cm。曾有異特龍的尾椎化石上留著與劍龍骨刺吻合的穿孔。'],['head','腦重只有約 80 公克，相對體型而言是恐龍中最小的腦之一。']],
+ b:{H:2.1,trunk:2.4,pitch:-.2,hT:[.55,.75,.5],wT:[.45,.62,.42],neck:{len:.85,n:3,ang:-.15,curve:.06,h1:.12,w1:.1},tail:{len:3.9,n:9,droop:.1,curve:.015,pow:1.25},
+  head:{L:.45,H:.1,W:.085,snout:.45,snoutW:.5,jaw:.4,ang:-.5,beak:1,eyeX:.45,eyeR:.02},hind:{l:[.95,.72,.26,.15],r:[.28,.15,.1],alpha:.1,fwd:.02,foot:'hoof',toes:3},
+  fore:{l:[.52,.42,.18,.1],r:[.17,.12,.09],alpha:.05,fwd:0,foot:'hoof',toes:5},skin:{base:'#7A6A45',belly:'#C9B98E',pat:'mottled',patC:'#4E4228',cell:.04},speed:[1.2,2.2],plateC:'#A6552E',feat:['plates','spikes']}},
+{id:'brachiosaurus',zh:'腕龍',sci:'Brachiosaurus altithorax',mean:'屬名意為「臂蜥蜴」',per:'jur',range:[154,150],when:'晚侏羅紀 · 約 1.54–1.50 億年前',len:22,diet:'high',
+ stats:[['頭部高度','約 12 m',1],['體重','約 30–50 t',1],['食性','草食（高處針葉樹）'],['化石產地','美國科羅拉多、猶他州']],
+ desc:'前肢比後肢長，背部由肩膀向臀部傾斜，能像長頸鹿一樣把頭抬到高處取食。是晚侏羅紀莫里遜組最具代表性的蜥腳類恐龍之一。',
+ facts:[['head','鼻孔開口在頭頂拱起的骨質鼻冠附近，早年曾被誤認為在水中呼吸用的通氣管。'],['neck','頸椎內有氣囊構成的空腔，大幅減輕了約 9 m 長頸部的重量。'],['fleg','前肢明顯長於後肢，屬名「臂蜥蜴」即指這項特徵。']],
+ b:{H:4.1,trunk:4.6,pitch:.22,hT:[1.1,1.55,1.35],wT:[.95,1.3,1.1],neck:{len:8.6,n:7,ang:.8,curve:-.025,h1:.22,w1:.18},tail:{len:7.5,n:10,droop:.08,curve:.025,pow:1.3},
+  head:{L:.85,H:.21,W:.17,snout:.6,snoutW:.8,jaw:.35,ang:-.35,eyeX:.45,eyeR:.04},hind:{l:[2.0,1.4,.4,.2],r:[.55,.38,.3],alpha:.05,fwd:0,foot:'pad'},
+  fore:{l:[1.7,1.3,.7,.2],r:[.45,.32,.27],alpha:0,fwd:0,foot:'pad'},skin:{base:'#6E7361',belly:'#BDBBA3',pat:'mottled',patC:'#4A5040',cell:.05},speed:[1.4,4],restNeck:-1.0,feat:['nasal']}},
+{id:'diplodocus',zh:'梁龍',sci:'Diplodocus carnegii',mean:'屬名意為「雙樑」',per:'jur',range:[154,152],when:'晚侏羅紀 · 約 1.54–1.52 億年前',len:25,diet:'herb',
+ stats:[['臀高','約 3.3 m',1],['體重','約 12–15 t',1],['食性','草食（低矮植物）'],['化石產地','北美洲西部']],
+ desc:'身長可達 25 m，但大部分是脖子和尾巴，體重比腕龍輕得多。屬名來自尾椎下方成對的人字骨，像兩根並排的樑。',
+ facts:[['tail','鞭狀尾巴末端極細，有研究推測快速揮動時可能接近音速，發出爆裂聲。'],['neck','頸部多半維持接近水平，像吸塵器一樣左右掃食大範圍的低矮植物。'],['jaw','牙齒細長如鉛筆，只長在嘴巴前端，用來把枝葉梳下來整口吞。']],
+ b:{H:3.3,trunk:3.6,pitch:-.05,hT:[.85,1.1,.9],wT:[.7,.92,.78],neck:{len:7,n:7,ang:.2,curve:-.012,h1:.16,w1:.14},tail:{len:13,n:14,droop:.12,curve:-.008,pow:1.7},
+  head:{L:.6,H:.12,W:.1,snout:.7,snoutW:.95,jaw:.35,ang:-.45,eyeX:.55,eyeR:.025},hind:{l:[1.6,1.2,.3,.2],r:[.45,.3,.24],alpha:.05,foot:'pad'},
+  fore:{l:[1.0,.75,.55,.15],r:[.33,.25,.2],alpha:0,foot:'pad'},skin:{base:'#7A7466',belly:'#C4BCA6',pat:'bands',patC:'#4E4A40',patN:34,cell:.05},speed:[1.4,4],restNeck:-.4}},
+{id:'iguanodon',zh:'禽龍',sci:'Iguanodon bernissartensis',mean:'屬名意為「鬣蜥的牙齒」',per:'cre',range:[126,122],when:'早白堊紀 · 約 1.26–1.22 億年前',len:10,diet:'herb',
+ stats:[['臀高','約 2.4 m',1],['體重','約 3 t',1],['食性','草食'],['化石產地','比利時、英國等西歐']],
+ desc:'史上最早被研究的恐龍之一。平時多以四足緩行，必要時可用後肢奔跑；前肢拇指是一根尖刺，其餘手指能抓握。',
+ facts:[['thumb','拇指是一根圓錐形尖刺，早期復原圖曾把它誤裝在鼻子上當成角。'],['body','1878 年比利時貝尼薩爾煤礦一次出土了 38 具以上的骨骼。'],['jaw','1825 年命名，是史上第二種被正式命名的恐龍，名字源自牙齒酷似鬣蜥。']],
+ b:{H:2.4,trunk:2.4,pitch:-.12,hT:[.55,.75,.56],wT:[.42,.58,.45],neck:{len:1.0,n:3,ang:.45,curve:-.1,h1:.15,w1:.12},tail:{len:4.5,n:10,droop:.14,curve:.01,pow:1.2,tall:1.3},
+  head:{L:.75,H:.17,W:.11,snout:.55,snoutW:.62,jaw:.4,ang:-.4,beak:1,eyeX:.45,eyeR:.03},hind:{l:[1.05,.95,.45,.22],r:[.3,.14,.08],alpha:.3,fwd:.04,foot:'hoof',toes:3},
+  fore:{l:[.68,.58,.3,.12],r:[.14,.1,.07],alpha:.05,foot:'hoof',toes:3},skin:{base:'#6B7248',belly:'#C5C29A',pat:'stripes',patC:'#3F4529',patN:16,cell:.035},speed:[1.4,6],feat:['thumb']}},
+{id:'spinosaurus',zh:'棘龍',sci:'Spinosaurus aegyptiacus',mean:'屬名意為「有棘的蜥蜴」',per:'cre',range:[99,93],when:'晚白堊紀 · 約 9900–9300 萬年前',len:14,diet:'fish',
+ stats:[['臀高','約 2.2 m',1],['體重','約 7.4 t',1],['食性','肉食（以魚類為主）'],['化石產地','北非（埃及、摩洛哥）']],
+ desc:'已知最長的肉食恐龍之一。細長吻部、圓錐形牙齒與槳狀尾巴，顯示牠很可能大量在水中捕魚。最初的模式標本在 1944 年慕尼黑空襲中被毀。',
+ facts:[['sail','背帆由延長的脊椎神經棘撐起，最長的棘約 1.65 m。'],['jaw','吻部細長、牙齒呈圓錐形，構造接近鱷魚，適合咬住滑溜的魚。'],['tail','2020 年在摩洛哥發現的尾椎有高聳棘突，構成槳狀尾，推測能在水中推進身體。']],
+ b:{H:2.2,trunk:2.6,pitch:.12,hT:[.5,.7,.6],wT:[.36,.5,.42],neck:{len:1.7,n:4,ang:.5,curve:-.1,h1:.2,w1:.16},tail:{len:6.4,n:12,droop:.05,curve:.008,pow:1.0,tall:2.2},
+  head:{L:1.6,H:.19,W:.13,snout:.35,snoutW:.42,jaw:.38,ang:-.12,teeth:18,toothL:.05,eyeX:.24,eyeR:.03},hind:{l:[.95,.82,.4,.35],r:[.3,.13,.07],alpha:.3,fwd:.06,foot:'claw',toes:4},
+  arm:{l:[.55,.45,.35],r:.1,fingers:3},skin:{base:'#56625C',belly:'#B3B59F',pat:'stripes',patC:'#343D39',patN:22,cell:.035},speed:[1.5,5],sailC:'#9C4A36',feat:['sail']}},
+{id:'parasaurolophus',zh:'副櫛龍',sci:'Parasaurolophus walkeri',mean:'屬名意為「接近櫛龍的蜥蜴」',per:'cre',range:[76.5,73],when:'晚白堊紀 · 約 7650–7300 萬年前',len:9.5,diet:'herb',
+ stats:[['臀高','約 2.3 m',1],['體重','約 2.5 t',1],['食性','草食'],['化石產地','加拿大亞伯達、美國']],
+ desc:'鴨嘴龍家族的一員，頭上一根向後延伸的長管狀頭冠是牠最醒目的特徵，可能用來發聲與辨識同類。',
+ facts:[['crest','頭冠內部是彎曲的中空鼻腔管道，電腦模擬顯示能發出低沉的共鳴聲。'],['jaw','鴨嘴狀的喙後方有數百顆牙齒組成的齒系，能研磨堅韌的植物。'],['leg','平時可四足緩行，受到威脅時能以粗壯的後肢奔跑。']],
+ b:{H:2.3,trunk:2.3,pitch:-.1,hT:[.52,.72,.55],wT:[.4,.55,.42],neck:{len:1.2,n:4,ang:.6,curve:-.15,h1:.14,w1:.11},tail:{len:4.4,n:10,droop:.13,curve:.01,pow:1.2,tall:1.4},
+  head:{L:.7,H:.15,W:.1,snout:.6,snoutW:1.15,jaw:.4,ang:-.4,beak:1,eyeX:.36,eyeR:.028},hind:{l:[1.0,.9,.42,.22],r:[.28,.13,.08],alpha:.3,fwd:.04,foot:'hoof',toes:3},
+  fore:{l:[.65,.55,.3,.12],r:[.12,.09,.06],alpha:.05,foot:'hoof',toes:3},skin:{base:'#6F5E3E',belly:'#CDBB94',pat:'bands',patC:'#8C4B2A',patN:13,cell:.03},speed:[1.5,6],crestC:'#A3552F',feat:['crestPara']}},
+{id:'velociraptor',zh:'迅猛龍',sci:'Velociraptor mongoliensis',mean:'屬名意為「迅捷的掠奪者」',per:'cre',range:[75,71],when:'晚白堊紀 · 約 7500–7100 萬年前',len:2,diet:'carn',
+ stats:[['臀高','約 0.5 m',1],['體重','約 15–20 kg',1],['食性','肉食'],['化石產地','蒙古、中國內蒙古']],
+ desc:'實際體型只有火雞大小，全身覆蓋羽毛。電影裡的「迅猛龍」形象，其實多參考了體型更大的恐爪龍。',
+ facts:[['arm','2007 年在前臂尺骨上發現羽莖瘤，證明牠長有和鳥類飛羽同類型的羽毛。'],['claw','第二趾的鐮刀爪長約 6.5 cm，行走時抬離地面以保持銳利。'],['head','1971 年出土的「搏鬥恐龍」化石，保存了牠與原角龍纏鬥時一同被掩埋的瞬間。']],
+ b:{H:.5,trunk:.45,pitch:.08,hT:[.068,.088,.075],wT:[.05,.065,.055],neck:{len:.28,n:3,ang:.8,curve:-.25,h1:.024,w1:.02},tail:{len:1.0,n:9,droop:0,curve:0,pow:.9},
+  head:{L:.24,H:.04,W:.03,snout:.5,snoutW:.5,jaw:.42,ang:-.1,teeth:12,toothL:.006,eyeX:.4,eyeR:.012},hind:{l:[.19,.24,.1,.07],r:[.04,.016,.009],alpha:.35,fwd:.04,foot:'claw',toes:2},
+  arm:{l:[.12,.11,.09],r:.01,fingers:3},skin:{base:'#8A5A34',belly:'#DCC7A0',pat:'stripes',patC:'#3F2C1C',patN:24,cell:.004,feather:1},speed:[1.5,11],featherC:'#5A3A22',feat:['feathers','sickle']}},
+{id:'gallimimus',zh:'似雞龍',sci:'Gallimimus bullatus',mean:'屬名意為「雞的模仿者」',per:'cre',range:[70,68],when:'晚白堊紀 · 約 7000–6800 萬年前',len:6,diet:'herb',
+ stats:[['臀高','約 1.8 m',1],['體重','約 440 kg',1],['食性','雜食（推測）'],['化石產地','蒙古（耐梅蓋特組）']],
+ desc:'似鳥龍類中體型最大的成員之一，外型像沒有翅膀的大型鴕鳥，以修長的後肢高速奔跑。',
+ facts:[['jaw','嘴裡沒有牙齒，以角質喙進食，可能是雜食性。'],['leg','修長的後肢與長蹠骨，讓牠成為奔跑最快的恐龍之一。'],['head','大眼睛位於頭部兩側，視野寬廣，有利於及早發現掠食者。']],
+ b:{H:1.8,trunk:1.1,pitch:.1,hT:[.24,.32,.25],wT:[.17,.23,.19],neck:{len:1.2,n:5,ang:.9,curve:-.14,h1:.05,w1:.045},tail:{len:2.9,n:10,droop:.02,curve:.005,pow:1.1},
+  head:{L:.32,H:.06,W:.05,snout:.25,snoutW:.35,jaw:.35,ang:-.25,beak:1,eyeX:.33,eyeR:.026},hind:{l:[.62,.72,.56,.15],r:[.12,.05,.025],alpha:.25,fwd:.06,foot:'claw',toes:3},
+  arm:{l:[.3,.25,.2],r:.03,fingers:3},skin:{base:'#8B7E62',belly:'#E0D6BC',pat:'plain',cell:.015,feather:1},speed:[1.6,13],featherC:'#6E6149',feat:['feathers']}},
+{id:'ankylosaurus',zh:'甲龍',sci:'Ankylosaurus magniventris',mean:'屬名意為「融合的蜥蜴」',per:'cre',range:[68,66],when:'晚白堊紀 · 約 6800–6600 萬年前',len:7,diet:'herb',
+ stats:[['臀高','約 1.5 m',1],['體重','約 5–8 t',1],['食性','草食（低矮植物）'],['化石產地','北美洲西部']],
+ desc:'身體寬扁、低矮，從頭到尾覆蓋骨質鱗甲，尾端還有一個沉重的骨錘，是白堊紀末期防禦力最強的恐龍之一。',
+ facts:[['club','尾錘由數塊骨板癒合而成，揮擊力量足以打斷對手的骨頭。'],['armor','背部覆蓋嵌在皮膚中的骨質鱗甲，甲龍類連眼瞼上都有小骨板。'],['head','鼻腔內有迴旋狀的通道，可能用於調節吸入空氣的溫度與濕度。']],
+ b:{H:1.55,trunk:2.4,pitch:-.03,hT:[.42,.56,.44],wT:[.68,.92,.72],neck:{len:.5,n:2,ang:.1,curve:0,h1:.24,w1:.27},tail:{len:3.0,n:8,droop:.05,curve:-.01,pow:1.3},
+  head:{L:.6,H:.19,W:.25,snout:.7,snoutW:.75,jaw:.33,ang:-.2,beak:1,eyeX:.45,eyeR:.025},hind:{l:[.65,.5,.2,.15],r:[.26,.16,.12],alpha:.1,foot:'hoof',toes:3,spread:.8},
+  fore:{l:[.5,.36,.18,.1],r:[.2,.15,.11],alpha:.05,foot:'hoof',toes:5},skin:{base:'#6E5F46',belly:'#B3A280',pat:'mottled',patC:'#3F3526',cell:.04},speed:[1,2.8],armorC:'#8A7B60',feat:['armor','club','ankyHorns']}},
+{id:'pachycephalosaurus',zh:'厚頭龍',sci:'Pachycephalosaurus wyomingensis',mean:'屬名意為「厚頭的蜥蜴」',per:'cre',range:[70,66],when:'晚白堊紀 · 約 7000–6600 萬年前',len:4.5,diet:'herb',
+ stats:[['臀高','約 1.35 m',1],['體重','約 370–450 kg',1],['食性','草食（可能雜食）'],['化石產地','北美洲西部']],
+ desc:'以後肢行走的植食恐龍，頭頂長著厚實的骨質圓頂，周圍還有一圈骨質瘤突，與暴龍、三角龍生活在同一時代。',
+ facts:[['dome','頭頂的骨質圓頂最厚可達 25 cm，周圍環繞著一圈骨質瘤突與小角。'],['jaw','牙齒細小呈葉片狀，主要吃植物，也可能吃果實與種子。'],['body','圓頂是否用於正面撞擊仍有爭議，但部分頭骨上確實留有癒合的傷痕。']],
+ b:{H:1.35,trunk:.95,pitch:.06,hT:[.25,.34,.27],wT:[.19,.27,.21],neck:{len:.45,n:3,ang:.55,curve:-.25,h1:.075,w1:.065},tail:{len:2.0,n:9,droop:.03,curve:.005,pow:1.1},
+  head:{L:.45,H:.12,W:.1,snout:.4,snoutW:.5,jaw:.35,ang:-.3,beak:1,eyeX:.45,eyeR:.02},hind:{l:[.52,.5,.3,.16],r:[.12,.055,.03],alpha:.3,fwd:.06,foot:'claw',toes:3},
+  arm:{l:[.18,.14,.08],r:.025,fingers:4},skin:{base:'#7F6C4D',belly:'#D1BF98',pat:'spots',patC:'#4B3B25',cell:.012},speed:[1.4,7],feat:['dome']}},
+{id:'triceratops',zh:'三角龍',sci:'Triceratops horridus',mean:'屬名意為「有三隻角的臉」',per:'cre',range:[68,66],when:'晚白堊紀 · 約 6800–6600 萬年前',len:8.5,diet:'herb',
+ stats:[['臀高','約 2.6 m',1],['體重','約 6–12 t',1],['食性','草食（低矮植物）'],['化石產地','北美洲西部']],
+ desc:'白堊紀最後的角龍類，與暴龍生活在同一時空。頭骨連同頸盾可長達 2.5 m 以上，是陸生動物中最大的頭骨之一。',
+ facts:[['horn','兩根眉角可長達 1 m。化石上癒合的傷痕顯示，同類之間會以角互相推擠。'],['frill','頸盾是實心骨板，可能用於展示、辨識同類與保護頸部。'],['jaw','喙狀嘴後方有數百顆牙齒排成齒列，會不斷替換，能切碎堅韌的植物。']],
+ b:{H:2.6,trunk:2.6,pitch:-.05,hT:[.65,.9,.72],wT:[.55,.78,.62],neck:{len:.55,n:2,ang:.1,curve:0,h1:.35,w1:.3},tail:{len:2.8,n:8,droop:.2,curve:.02,pow:1.3},
+  head:{L:1.3,H:.35,W:.3,snout:.45,snoutW:.45,jaw:.38,ang:-.45,beak:1,eyeX:.4,eyeR:.038},hind:{l:[1.15,.9,.3,.2],r:[.33,.18,.12],alpha:.12,foot:'hoof',toes:4},
+  fore:{l:[.8,.65,.25,.12],r:[.22,.16,.12],alpha:.05,foot:'hoof',toes:5},skin:{base:'#5F6A45',belly:'#B8B38A',pat:'mottled',patC:'#39402A',cell:.045},speed:[1.3,7],frillC:'#8C4F2E',feat:['frill','horns']}},
+{id:'trex',zh:'暴龍',sci:'Tyrannosaurus rex',mean:'學名意為「暴君蜥蜴之王」',per:'cre',range:[68,66],when:'晚白堊紀 · 約 6800–6600 萬年前',len:12.3,diet:'carn',
+ stats:[['臀高','約 3.4 m',1],['體重','約 8.4 t',1],['食性','肉食'],['化石產地','北美洲西部']],
+ desc:'最著名的大型肉食恐龍。成年個體頭骨長約 1.5 m，擁有陸生動物中數一數二的咬合力。體重估計介於 6 到 14 公噸之間，依研究方法而異。',
+ facts:[['jaw','咬合力估計達 35,000–57,000 牛頓，足以咬碎骨頭。'],['head','雙眼朝前，兩眼視野重疊約 55°，具有立體視覺。'],['arm','前肢只有約 1 m 長、兩根手指，但肌肉發達，實際用途至今仍有爭論。']],
+ b:{H:3.4,trunk:3.2,pitch:.05,hT:[.75,1.05,.85],wT:[.55,.75,.6],neck:{len:1.1,n:3,ang:.5,curve:-.25,h1:.33,w1:.27},tail:{len:6.4,n:12,droop:.02,curve:.01,pow:1.15},
+  head:{L:1.45,H:.36,W:.38,snout:.5,snoutW:.42,jaw:.42,ang:-.1,teeth:13,toothL:.09,eyeX:.28,eyeR:.045,brows:'boss'},hind:{l:[1.35,1.25,.75,.45],r:[.46,.18,.1],alpha:.3,fwd:.1,foot:'claw',toes:3},
+  arm:{l:[.4,.3,.2],r:.07,fingers:2},skin:{base:'#6A5638',belly:'#C0A983',pat:'stripes',patC:'#3A2C1D',patN:16,cell:.045},speed:[2.2,7.5]}}
+];
+const MAXLEN=25,HUMAN=1.75;
+const PREY_B=Object.assign({},SP.find(s=>s.id==='iguanodon').b,{skin:{base:'#6A5C44',belly:'#8C7F63',pat:'plain',cell:.05},feat:[]});
+const STATE_ZH={stand:'站立',walk:'走路',run:'跑步',rest:'休息',eat:'進食'};
+
+const $=s=>document.querySelector(s);
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let idx=SP.findIndex(d=>d.id==='trex');
+try{const s=localStorage.getItem('dino-id');const k=SP.findIndex(d=>d.id===s);if(k>=0)idx=k;}catch(e){}
+let state=reduce?'stand':'walk';
+
+/* ============================ panel & timeline ============================ */
+const panel=$('#panel');
+const kmh=v=>Math.round(v*3.6);
+function renderPanel(d){
+  const p=PERIODS[d.per];
+  panel.innerHTML=`
+  <div class="name">
+    <span class="chip"><i style="background:var(${p.v})"></i>${d.when}</span>
+    <h2>${d.zh}</h2><span class="sci">${d.sci}</span><span class="mean">${d.mean}</span>
+  </div>
+  <p class="desc">${d.desc}</p>
+  <dl>
+    <div><dt>體長</dt><dd class="num">約 ${d.len} m</dd></div>
+    ${d.stats.map(s=>`<div${s[2]?'':' class="wide"'}><dt>${s[0]}</dt><dd${s[2]?' class="num"':''}>${s[1]}</dd></div>`).join('')}
+    <div class="wide"><dt>推估速度</dt><dd class="num">走 ${kmh(d.b.speed[0])} · 跑 ${kmh(d.b.speed[1])} km/h</dd></div>
+  </dl>
+  <div><p class="sect"><span>觀察重點</span><button id="pTour">▶ 播放完整解說</button></p>
+    <ol class="facts">${d.facts.map((f,i)=>`<li><button data-f="${i}" aria-label="播放第 ${i+1} 段解說"><span class="n">${i+1}</span><span>${f[1]}</span><span class="pl">▶</span></button></li>`).join('')}</ol></div>
+  <div><p class="sect">體長比較</p><div class="bars">
+    ${SP.map((o,i)=>`<button class="bar${i===idx?' on':''}" data-i="${i}"><span>${o.zh}</span><span class="trk"><span style="width:${o.len/MAXLEN*100}%"></span></span><span class="v">${o.len} m</span></button>`).join('')}
+    <div class="bar ref"><span>人類</span><span class="trk"><span style="width:${HUMAN/MAXLEN*100}%"></span></span><span class="v">${HUMAN} m</span></div>
+  </div></div>
+  <p class="note">體型、速度與年代皆為常見學術估計，研究間可能有差異。模型依骨骼比例程序化生成，皮膚顏色屬推測。叫聲是以鳥類與鱷魚等近親的發聲方式推想的合成音效，恐龍的真實叫聲沒有化石能保存。場景植物為蕨類、蘇鐵與南洋杉，中生代大部分時間還沒有草原。</p>`;
+  panel.querySelectorAll('.facts button').forEach(b=>b.onclick=()=>playFact(+b.dataset.f));const pt=panel.querySelector('#pTour');if(pt)pt.onclick=()=>startTour();
+  panel.querySelectorAll('.bar[data-i]').forEach(b=>b.onclick=()=>select(+b.dataset.i));
+}
+const tl=$('#tl');
+const pct=ma=>(252-ma)/186*100;
+(function renderTimeline(){
+  let h='';
+  for(const k in PERIODS){const p=PERIODS[k];h+=`<div class="band" style="--c:var(${p.v});left:${pct(p.from)}%;width:${pct(p.to)-pct(p.from)}%"><span>${p.zh}</span><small>${p.en}</small></div>`;}
+  [252,201,145,66].forEach((m,i,a)=>h+=`<div class="tick${i===0?' first':i===a.length-1?' last':''}" style="left:${pct(m)}%">${m}</div>`);
+  SP.forEach((d,i)=>{const l=pct(d.range[0]),r=pct(d.range[1]),right=r>78;
+    h+=`<button class="mk${right?' right':''}" data-i="${i}" style="--c:var(${PERIODS[d.per].v});${right?`right:${100-r}%`:`left:${l}%`}"><span class="rng" style="width:calc(${(r-l)/100} * var(--w,860px))"></span><span>${d.zh}</span><small>${d.range[0]}–${d.range[1]}</small></button>`;});
+  tl.innerHTML=h;
+  tl.querySelectorAll('.mk').forEach(b=>b.onclick=()=>select(+b.dataset.i));
+})();
+function layoutTimeline(){
+  tl.style.setProperty('--w',tl.clientWidth+'px');
+  const base=tl.getBoundingClientRect();const rows=[];
+  const items=[...tl.querySelectorAll('.mk')].map(el=>{el.style.top='62px';const r=el.getBoundingClientRect();return{el,l:r.left-base.left,r:r.right-base.left};}).sort((a,b)=>a.l-b.l);
+  items.forEach(it=>{let row=0;while(rows[row]&&rows[row].some(([l,r])=>it.l<r+10&&it.r>l-10))row++;(rows[row]=rows[row]||[]).push([it.l,it.r]);it.el.style.top=(62+row*30)+'px';});
+  tl.style.height=(68+rows.length*30)+'px';
+}
+new ResizeObserver(layoutTimeline).observe(tl);
+
+/* ================================= three ================================= */
+if(!window.THREE||!THREE.OrbitControls){$('#busyT').textContent='3D 函式庫載入失敗，請重新整理頁面。';renderPanel(SP[idx]);return;}
+const V3=THREE.Vector3;
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const smooth=(a,b,x)=>{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t);};
+const col=h=>new THREE.Color(h).convertSRGBToLinear();
+const stdMat=(h,o)=>new THREE.MeshStandardMaterial(Object.assign({color:col(h),roughness:.8,metalness:0},o||{}));
+const mkCanvas=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c;};
+const hexRGB=h=>{const n=parseInt(h.slice(1),16);return[(n>>16)&255,(n>>8)&255,n&255];};
+
+const stage=$('#stage'),layer=$('#layer');
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.outputEncoding=THREE.sRGBEncoding;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.0;
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+stage.insertBefore(renderer.domElement,stage.firstChild);
+const ANISO=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(38,1,.05,2500);
+camera.position.set(14,6,20);
+const controls=new THREE.OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;controls.dampingFactor=.08;controls.maxPolarAngle=Math.PI*.49;
+controls.autoRotateSpeed=.5;controls.autoRotate=!reduce;
+$('#bRot').setAttribute('aria-pressed',String(!reduce));
+
+/* ---------- noise ---------- */
+function hash(ix,iy,s){let h=Math.imul(ix|0,374761393)^Math.imul(iy|0,668265263)^Math.imul(s+1|0,1442695041);h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return(h>>>0)/4294967296;}
+function vnoise(x,y,px,py,s){const ix=Math.floor(x),iy=Math.floor(y),fx=x-ix,fy=y-iy;
+  const x0=px?((ix%px)+px)%px:ix,x1=px?(((ix+1)%px)+px)%px:ix+1,y0=py?((iy%py)+py)%py:iy,y1=py?(((iy+1)%py)+py)%py:iy+1;
+  const a=hash(x0,y0,s),b=hash(x1,y0,s),c=hash(x0,y1,s),d=hash(x1,y1,s),sx=fx*fx*(3-2*fx),sy=fy*fy*(3-2*fy);
+  return a+(b-a)*sx+(c-a)*sy+(a-b-c+d)*sx*sy;}
+function fbm(x,y,px,py,s,oct){let t=0,a=.5,f=1,n=0;for(let o=0;o<oct;o++){t+=a*vnoise(x*f,y*f,px*f,py*f,s+o*31);n+=a;a*=.5;f*=2;}return t/n;}
+
+/* ---------- procedural skin (color + bump) ---------- */
+function genSkin(sk,W,H,lenM,circM,patterned,seed){
+  const cv=mkCanvas(W,H),nc=mkCanvas(W,H),rc=mkCanvas(W,H),cx=cv.getContext('2d'),nx=nc.getContext('2d'),rx=rc.getContext('2d');
+  const im=cx.createImageData(W,H),nm=nx.createImageData(W,H),rm=rx.createImageData(W,H),d=im.data,dn=nm.data,dr=rm.data,hg=new Float32Array(W*H);
+  const B=hexRGB(sk.base),L=hexRGB(sk.belly),P=hexRGB(sk.patC||sk.base);
+  const cell=Math.max(sk.cell||.03,lenM/W*5,circM/H*4);
+  const cu=lenM/cell,rows=Math.max(2,2*Math.round(circM/(cell*.866)/2));
+  const cL=cell*2.3,cuL=lenM/cL,rowsL=Math.max(2,2*Math.round(circM/(cL*.866)/2));
+  const cV=cell*1.8,cuV=lenM/(cV*1.6),rowsV=Math.max(2,Math.round(circM/cV));
+  const Pm=Math.max(2,Math.round(circM*1.1)),Ps=Math.max(3,Math.round(circM*3.2)),Pf=Math.max(4,Math.round(circM*7));
+  let hid=0;
+  const hex=(X,Y,sd)=>{let q=9;const r0=Math.floor(Y);for(let rr=r0;rr<=r0+1;rr++){const off=(rr&1)?.5:0,c=Math.round(X-off)+off,dx=X-c,dy=(Y-rr)*.866,dd=dx*dx+dy*dy;if(dd<q){q=dd;hid=hash(c*2|0,rr,sd);}}return Math.sqrt(q);};
+  for(let y=0;y<H;y++){const v=(y+.5)/H,s=Math.sin(v*6.2832),top=smooth(-.6,.25,s),dm=smooth(-.05,.55,s),ridge=Math.exp(-Math.pow((v-.25)*circM/.3,2))*.16,dors=smooth(.35,.8,s),vent=smooth(-.55,-.85,s);
+    for(let x=0;x<W;x++){const u=(x+.5)/W,i=y*W+x,o=i*4;
+      const n1=fbm(u*lenM*1.1,v*Pm,0,Pm,seed,3);
+      let r=L[0]+(B[0]-L[0])*top,g=L[1]+(B[1]-L[1])*top,b=L[2]+(B[2]-L[2])*top,m=0;
+      if(patterned){switch(sk.pat){
+        case 'stripes':{const f=.5+.5*Math.sin((u*sk.patN+n1*.9)*6.2832);m=smooth(.58,.8,f)*dm*.9;break;}
+        case 'bands':{const f=.5+.5*Math.sin((u*sk.patN+n1*.7)*6.2832);m=smooth(.55,.75,f)*smooth(-.5,.1,s)*.85;break;}
+        case 'spots':{const f=fbm(u*lenM*3.2,v*Ps,0,Ps,seed+5,2);m=smooth(.6,.66,f)*smooth(-.25,.35,s);break;}
+        case 'mottled':{const f=fbm(u*lenM*.9+3,v*Pm,0,Pm,seed+9,3);m=smooth(.46,.64,f)*smooth(-.35,.5,s)*.8;break;}}}
+      r+=(P[0]-r)*m;g+=(P[1]-g)*m;b+=(P[2]-b)*m;
+      const sp=smooth(.7,.76,fbm(u*lenM*6,v*Pf,0,Pf,seed+17,2))*.18;
+      let k=(.8+.4*n1)*(1-ridge)*(1-sp),hv,gap=0;
+      if(sk.feather){const st=fbm(u*lenM*7,v*Pf,0,Pf,seed+3,2);k*=.86+.28*st;hv=st*.6;}
+      else{
+        const d1=hex(u*cu,v*rows,seed+77),g1=smooth(.33,.5,d1);let h1=(1-g1)*(1-d1*d1*2.2),gg=g1,id=hid;
+        if(dors>0){const d2=hex(u*cuL,v*rowsL,seed+91),g2=smooth(.36,.5,d2),h2=(1-g2)*(1-d2*d2*1.6);h1=lerp(h1,h2,dors);gg=lerp(gg,g2,dors);if(dors>.5)id=hid;}
+        if(vent>0){const X=u*cuV,Y=v*rowsV,fx=X-Math.floor(X),fy=Y-Math.floor(Y),e=Math.max(Math.abs(fx-.5),Math.abs(fy-.5)*1.4),g3=smooth(.36,.5,e),h3=(1-g3)*(1-e*.5);h1=lerp(h1,h3,vent);gg=lerp(gg,g3,vent);}
+        const tub=smooth(.7,.76,fbm(u*lenM*1.3,v*Ps,0,Ps,seed+41,2))*smooth(-.3,.2,s);h1+=tub*.45;
+        hv=h1;gap=gg;k*=(1-gg*.3)*(.92+.16*id);
+      }
+      d[o]=clamp(r*k,0,255);d[o+1]=clamp(g*k,0,255);d[o+2]=clamp(b*k,0,255);d[o+3]=255;
+      hg[i]=hv;const ro=(.58+.34*gap+.08*n1)*255;dr[o]=dr[o+1]=dr[o+2]=ro;dr[o+3]=255;}}
+  const S=sk.feather?1.4:2.6;
+  for(let y=0;y<H;y++){const yu=((y-1+H)%H)*W,yd=((y+1)%H)*W;for(let x=0;x<W;x++){const xl=(x-1+W)%W,xr=(x+1)%W,i=y*W+x,o=i*4;
+    let ax=-(hg[y*W+xr]-hg[y*W+xl])*S,ay=-(hg[yd+x]-hg[yu+x])*S,l=Math.hypot(ax,ay,1);dn[o]=(ax/l*.5+.5)*255;dn[o+1]=(ay/l*.5+.5)*255;dn[o+2]=(1/l*.5+.5)*255;dn[o+3]=255;}}
+  cx.putImageData(im,0,0);nx.putImageData(nm,0,0);rx.putImageData(rm,0,0);
+  const tex=(c,srgb)=>{const t=new THREE.CanvasTexture(c);if(srgb)t.encoding=THREE.sRGBEncoding;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.flipY=false;t.anisotropy=ANISO;return t;};
+  return{map:tex(cv,true),normal:tex(nc),rough:tex(rc),cell};
+}
+const skinMat=(t,skinning,extra)=>new THREE.MeshPhysicalMaterial(Object.assign({map:t.map,normalMap:t.normal,normalScale:new THREE.Vector2(.9,.9),roughnessMap:t.rough,roughness:1,clearcoat:.08,clearcoatRoughness:.6,skinning:!!skinning,envMapIntensity:.85},extra||{}));
+const eyeTex=(()=>{const c=mkCanvas(256,128),x=c.getContext('2d');x.fillStyle='#2A1C0E';x.fillRect(0,0,256,128);
+  const g=x.createRadialGradient(64,64,4,64,64,30);g.addColorStop(0,'#F2C45A');g.addColorStop(.55,'#C98A22');g.addColorStop(.85,'#7A4A12');g.addColorStop(1,'#2A1C0E');
+  x.fillStyle=g;x.beginPath();x.ellipse(64,64,30,34,0,0,Math.PI*2);x.fill();x.fillStyle='#070504';x.beginPath();x.ellipse(64,64,8,12,0,0,Math.PI*2);x.fill();
+  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;return t;})();
+
+/* ---------- lofting: planar tube with elliptical sections ---------- */
+function loft(pts,nR,M,secF){
+  const curve=new THREE.CatmullRomCurve3(pts.map(p=>new V3(p.x,p.y,0)),false,'centripetal');
+  const K=24;curve.arcLengthDivisions=(pts.length-1)*K;
+  const lens=curve.getLengths(),total=lens[lens.length-1],JA=pts.map((_,i)=>lens[i*K]);
+  const sec=secF(JA,total);
+  const nv=(nR+1)*(M+1),pos=new Float32Array(nv*3),uv=new Float32Array(nv*2),ringArc=[];
+  const C=new V3(),T=new V3();let pi=0,ui=0;
+  for(let i=0;i<=nR;i++){const u=i/nR,tt=curve.getUtoTmapping(u);curve.getPoint(tt,C);curve.getTangent(tt,T);
+    const nl=Math.hypot(T.x,T.y)||1,Nx=-T.y/nl,Ny=T.x/nl,a=u*total;ringArc.push(a);
+    const S=sec(a),pe=2/(S.e||2);
+    for(let k=0;k<=M;k++){const an=k/M*Math.PI*2,ca=Math.cos(an),sa=Math.sin(an);
+      const cx=Math.sign(ca)*Math.pow(Math.abs(ca),pe),sy=Math.sign(sa)*Math.pow(Math.abs(sa),pe);
+      const hh=S.h*(sa<0?(S.bot||1):(S.top||1)),ww=S.w*(1+(S.pear||0)*(-sa)),off=(S.dy||0)+hh*sy+(S.ridge?S.h*S.ridge*Math.exp(-Math.pow((an-1.5708)/.2,2)):0);
+      pos[pi++]=C.x+Nx*off;pos[pi++]=C.y+Ny*off;pos[pi++]=ww*cx;uv[ui++]=u;uv[ui++]=k/M;}}
+  const idx=[];for(let i=0;i<nR;i++)for(let k=0;k<M;k++){const a=i*(M+1)+k,b=a+M+1;idx.push(a,b,a+1,b,b+1,a+1);}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));g.setAttribute('uv',new THREE.BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();
+  const n=g.attributes.normal;
+  for(let i=0;i<=nR;i++){const a=i*(M+1),b=a+M,v=new V3(n.getX(a)+n.getX(b),n.getY(a)+n.getY(b),n.getZ(a)+n.getZ(b)).normalize();n.setXYZ(a,v.x,v.y,v.z);n.setXYZ(b,v.x,v.y,v.z);}
+  return{geo:g,curve,total,JA,ringArc,sec,M};
+}
+function skinAttrs(Lf,segs){
+  const M=Lf.M,n=Lf.ringArc.length*(M+1),si=new Uint16Array(n*4),sw=new Float32Array(n*4),mids=segs.map(s=>(s.a0+s.a1)/2);
+  Lf.ringArc.forEach((a,i)=>{let b0=segs[0].bi,b1=b0,w=0;
+    if(a>=mids[mids.length-1]){b0=b1=segs[segs.length-1].bi;}
+    else if(a>mids[0]){for(let j=0;j<mids.length-1;j++){if(a<=mids[j+1]){const t=(a-mids[j])/(mids[j+1]-mids[j]);b0=segs[j].bi;b1=segs[j+1].bi;w=smooth(.12,.88,t);break;}}}
+    for(let k=0;k<=M;k++){const o=(i*(M+1)+k)*4;si[o]=b0;si[o+1]=b1;sw[o]=1-w;sw[o+1]=w;}});
+  Lf.geo.setAttribute('skinIndex',new THREE.Uint16BufferAttribute(si,4));
+  Lf.geo.setAttribute('skinWeight',new THREE.Float32BufferAttribute(sw,4));
+}
+function mergeGeos(list){
+  let n=0;const arr=list.map(g=>{const q=g.index?g.toNonIndexed():g;n+=q.attributes.position.count;return q;});
+  const hasUV=arr.every(q=>q.attributes.uv);
+  const pos=new Float32Array(n*3),nor=new Float32Array(n*3),uv=hasUV?new Float32Array(n*2):null;let o=0;
+  arr.forEach(q=>{pos.set(q.attributes.position.array,o*3);nor.set(q.attributes.normal.array,o*3);if(uv)uv.set(q.attributes.uv.array,o*2);o+=q.attributes.position.count;});
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));g.setAttribute('normal',new THREE.BufferAttribute(nor,3));if(uv)g.setAttribute('uv',new THREE.BufferAttribute(uv,2));
+  return g;
+}
+function ik2(hx,hy,ax,ay,l1,l2,bend){
+  const dx=ax-hx,dy=ay-hy,d=clamp(Math.hypot(dx,dy),Math.abs(l1-l2)+1e-3,l1+l2-1e-4),phi=Math.atan2(dy,dx);
+  const beta=Math.acos(clamp((l1*l1+d*d-l2*l2)/(2*l1*d),-1,1)),t1=phi+bend*beta,kx=hx+l1*Math.cos(t1),ky=hy+l1*Math.sin(t1);
+  return{t1,t2:Math.atan2(ay-ky,ax-kx),kx,ky};
+}
+function vcolorGeo(g,c0,c1,y0,y1){const p=g.attributes.position,a=new Float32Array(p.count*3),A=col(c0),B=col(c1);
+  for(let i=0;i<p.count;i++){const t=smooth(y0,y1,p.getY(i));a[i*3]=lerp(A.r,B.r,t);a[i*3+1]=lerp(A.g,B.g,t);a[i*3+2]=lerp(A.b,B.b,t);}
+  g.setAttribute('color',new THREE.BufferAttribute(a,3));return g;}
+const _q=new THREE.Quaternion(),_m=new THREE.Matrix4(),_a=new V3(),_b=new V3(),Y_UP=new V3(0,1,0);
+
+/* ============================ dinosaur builder ============================ */
+function buildDino(sp,opt){
+  opt=opt||{};
+  const b=sp.b,root=new THREE.Group(),bones=[],meshes=[],disp=[];
+  const hi=!opt.low;
+  const lenTot=b.tail.len+b.trunk+b.neck.len+b.head.L;
+  const circ=2*Math.PI*(b.hT[1]+b.wT[1])/2;
+  const legLen=b.hind.l[0]+b.hind.l[1]+b.hind.l[2];
+  const tb=genSkin(b.skin,hi?1536:640,hi?320:128,lenTot,circ,true,7);
+  const tp=genSkin(Object.assign({},b.skin,{pat:'plain'}),hi?512:256,hi?256:128,legLen*1.3,2*Math.PI*b.hind.r[0],false,13);
+  const M={
+    bodyS:skinMat(tb,true),plainS:skinMat(tp,true),plainR:skinMat(tp,false),
+    claw:new THREE.MeshPhysicalMaterial({color:col('#231D17'),roughness:.35,clearcoat:.5,clearcoatRoughness:.3}),tooth:stdMat('#EAE0C4',{roughness:.35}),mouth:stdMat('#6B2A2A',{roughness:.55}),
+    eye:new THREE.MeshPhysicalMaterial({map:eyeTex,roughness:.3,clearcoat:1,clearcoatRoughness:.04}),nostril:stdMat('#17120D',{roughness:.9}),keratin:new THREE.MeshPhysicalMaterial({color:col('#3A3128'),roughness:.45,clearcoat:.3}),
+    horn:stdMat('#D6C8A4',{roughness:.5}),vcol:new THREE.MeshStandardMaterial({vertexColors:true,roughness:.62})
+  };
+  disp.push(tb.map,tb.normal,tb.rough,tp.map,tp.normal,tp.rough);
+  function mk(parent,x,y,abs,z){
+    const bn=new THREE.Bone(),pp=parent?parent.userData:{x:0,y:0,abs:0,z:0};
+    const dx=x-pp.x,dy=y-pp.y,c=Math.cos(-pp.abs),s=Math.sin(-pp.abs);
+    bn.position.set(dx*c-dy*s,dx*s+dy*c,(z||0)-pp.z);bn.rotation.z=abs-pp.abs;
+    bn.userData={x,y,abs,z:z||0,rest:abs-pp.abs,i:bones.length,len:0};
+    (parent||root).add(bn);bones.push(bn);return bn;
+  }
+  // ---- axial skeleton ----
+  const P={x:0,y:b.H},pel=mk(null,0,b.H,b.pitch,0);
+  const nS=2,sj=[P];for(let i=1;i<=nS;i++)sj.push({x:Math.cos(b.pitch)*b.trunk*i/nS,y:b.H+Math.sin(b.pitch)*b.trunk*i/nS});
+  let par=pel;const spine=[];for(let i=1;i<nS;i++){const bn=mk(par,sj[i].x,sj[i].y,b.pitch,0);spine.push(bn);par=bn;}
+  const shoulder=par;shoulder.userData.len=b.trunk/nS;pel.userData.len=b.trunk/nS;
+  const nk=b.neck,nn=nk.n,nsl=nk.len/nn,nj=[sj[nS]],neck=[];let ang=b.pitch+nk.ang;
+  for(let i=0;i<nn;i++){const bn=mk(par,nj[i].x,nj[i].y,ang,0);bn.userData.len=nsl;neck.push(bn);nj.push({x:nj[i].x+Math.cos(ang)*nsl,y:nj[i].y+Math.sin(ang)*nsl});par=bn;ang+=nk.curve;}
+  const head=mk(par,nj[nn].x,nj[nn].y,b.head.ang,0);
+  const tk=b.tail,tn=tk.n,tsl=tk.len/tn,tj=[P],tail=[];let ta=Math.PI+b.pitch+tk.droop;par=pel;
+  for(let i=0;i<tn;i++){const bn=mk(par,tj[i].x,tj[i].y,ta,0);bn.userData.len=tsl;tail.push(bn);tj.push({x:tj[i].x+Math.cos(ta)*tsl,y:tj[i].y+Math.sin(ta)*tsl});par=bn;ta+=tk.curve;}
+
+  // ---- body skin ----
+  const bpts=[];for(let i=tn;i>=1;i--)bpts.push(tj[i]);bpts.push(P);for(let i=1;i<=nS;i++)bpts.push(sj[i]);for(let i=1;i<=nn;i++)bpts.push(nj[i]);
+  const iP=tn,iS=tn+nS,iE=tn+nS+nn;
+  const tall=tk.tall||(b.fore?1.05:1.2),tpow=tk.pow||1.2;
+  const body=loft(bpts,hi?160:90,hi?30:18,(JA,total)=>{const aP=JA[iP],aS=JA[iS],aE=JA[iE];
+    return a=>{
+      if(a<aP){const u=1-a/aP,k=Math.pow(1-u,tpow);let h=b.hT[0]*k+.002;const w=b.wT[0]*Math.pow(1-u,tpow*1.08)+.002;h*=lerp(1,tall,smooth(0,.35,u));
+        return{h,w:w*(1+.1*Math.exp(-Math.pow(u/.12,2))),dy:-h*lerp(.45,.1,smooth(0,.25,u)),e:lerp(2.3,tall>1.5?1.6:2,smooth(0,.3,u)),pear:.1*(1-smooth(0,.2,u)),ridge:.05*(1-u*.8),bot:1+.1*smooth(0,.15,u)*(1-smooth(.4,.9,u))};}
+      if(a<aS){const t=(a-aP)/(aS-aP),f=t<.45?smooth(0,1,t/.45):smooth(0,1,(t-.45)/.55);
+        const h=t<.45?lerp(b.hT[0],b.hT[1],f):lerp(b.hT[1],b.hT[2],f),w=t<.45?lerp(b.wT[0],b.wT[1],f):lerp(b.wT[1],b.wT[2],f);
+        return{h,w:w*(1+.1*Math.exp(-Math.pow(t/.12,2))+.07*Math.exp(-Math.pow((t-.9)/.1,2))),dy:-h*.45,e:2.3,pear:.1,ridge:.05,bot:1+.1*Math.sin(Math.PI*t)};}
+      const u=clamp((a-aS)/(aE-aS),0,1),f=1-Math.pow(1-u,2.2),h=lerp(b.hT[2],nk.h1,f),w=lerp(b.wT[2],nk.w1,f);
+      return{h,w:w*(1+.026*Math.pow(1-u,4)),dy:-h*lerp(.45,.15,smooth(0,.35,u)),e:lerp(2.3,2,u),pear:.1*(1-u),ridge:.05-.015*u,bot:1+.08*smooth(.1,.6,u)};};});
+  const bsegs=[];
+  for(let ci=0;ci<tn;ci++)bsegs.push({bi:tail[tn-1-ci].userData.i,a0:body.JA[ci],a1:body.JA[ci+1]});
+  for(let ci=iP;ci<iS;ci++)bsegs.push({bi:(ci===iP?pel:spine[ci-iP-1]).userData.i,a0:body.JA[ci],a1:body.JA[ci+1]});
+  for(let ci=iS;ci<iE;ci++)bsegs.push({bi:neck[ci-iS].userData.i,a0:body.JA[ci],a1:body.JA[ci+1]});
+  skinAttrs(body,bsegs);
+  const skinned=[[body.geo,M.bodyS]];
+  const uP=body.JA[iP]/body.total,uS=body.JA[iS]/body.total;
+  tail.forEach((bn,i)=>{const a=body.JA[tn-1-i];const S=body.sec(a);bn.userData.rEnd=S.h*1.1+(S.dy<0?-S.dy*.2:0);});
+  neck.forEach((bn,i)=>{const S=body.sec(body.JA[iS+i+1]);bn.userData.rEnd=S.h*1.15;});
+  function bodyPt(u,an,extra){extra=extra||0;const tt=body.curve.getUtoTmapping(clamp(u,0,1)),C=body.curve.getPoint(tt),T=body.curve.getTangent(tt);
+    const N=new V3(-T.y,T.x,0).normalize(),S=body.sec(clamp(u,0,1)*body.total),sa=Math.sin(an),ca=Math.cos(an),off=S.dy+(S.h+extra)*sa;
+    const p=new V3(C.x+N.x*off,C.y+N.y*off,(S.w+extra)*ca*(1+S.pear*(-sa)));
+    const n=N.clone().multiplyScalar(sa/S.h).add(new V3(0,0,ca/S.w)).normalize();return{p,n,T,N,S};}
+  function ownerBone(u){const a=u*body.total;for(const s of bsegs)if(a<=s.a1)return bones[s.bi];return bones[bsegs[bsegs.length-1].bi];}
+
+  // ---- limbs ----
+  const legs=[],arms=[],limbSkins=[];
+  function limb(parentBone,hx,hy,z,L,fore){
+    const [l1,l2,l3,l4]=L.l,[rT,rS,rM]=L.r,bend=fore?-1:1,al=L.alpha||0,len=l1+l2+l3;
+    const ballY=rM*1.05,ball={x:hx+(L.fwd||0)*len,y:ballY},ank={x:ball.x-l3*Math.sin(al),y:ball.y+l3*Math.cos(al)};
+    const s=ik2(hx,hy,ank.x,ank.y,l1,l2,bend),knee={x:s.kx,y:s.ky},a2={x:s.kx+l2*Math.cos(s.t2),y:s.ky+l2*Math.sin(s.t2)};
+    const t3=Math.atan2(ball.y-a2.y,ball.x-a2.x),bp={x:a2.x+l3*Math.cos(t3),y:a2.y+l3*Math.sin(t3)};
+    const bT=mk(parentBone,hx,hy,s.t1,z),bS=mk(bT,knee.x,knee.y,s.t2,z),bM=mk(bS,a2.x,a2.y,t3,z),bF=mk(bM,bp.x,bp.y,0,z);
+    bT.userData.len=l1;bS.userData.len=l2;bM.userData.len=l3;
+    const top={x:hx-rT*.1,y:hy+rT*1.3},end={x:bp.x+rM*.25,y:bp.y-rM*.7};
+    const Lf=loft([top,{x:hx,y:hy},knee,a2,bp,end],hi?48:28,hi?18:12,(JA)=>a=>{
+      if(a<JA[1]){const t=a/JA[1];return{h:rT*1.25*(.55+.45*smooth(0,1,t)),w:rT*1.1*(.6+.4*smooth(0,1,t))};}
+      if(a<JA[2]){const t=(a-JA[1])/(JA[2]-JA[1]);return{h:lerp(rT*1.3,rT*.52,Math.pow(t,1.25))*(1+.12*Math.sin(Math.PI*t)),w:lerp(rT*1.12,rT*.48,Math.pow(t,1.15))};}
+      if(a<JA[3]){const t=(a-JA[2])/(JA[3]-JA[2]),hk=Math.max(rT*.52,rS),ha=rM*1.3,bl=Math.sin(Math.PI*clamp(t*1.3,0,1))*(1-t*.5);return{h:lerp(hk,ha,t)+rS*.45*bl,w:lerp(hk*.9,ha*.95,t)+rS*.25*bl};}
+      if(a<JA[4]){const t=(a-JA[3])/(JA[4]-JA[3]);return{h:lerp(rM*1.3,rM*1.05,t),w:lerp(rM*1.2,rM*1.25,t)};}
+      const t=clamp((a-JA[4])/(JA[5]-JA[4]),0,1),k=Math.sqrt(Math.max(0,1-t*t));return{h:rM*1.05*k+.002,w:rM*1.25*k+.002};});
+    Lf.geo.translate(0,0,z);
+    skinAttrs(Lf,[{bi:parentBone.userData.i,a0:Lf.JA[0],a1:Lf.JA[1]},{bi:bT.userData.i,a0:Lf.JA[1],a1:Lf.JA[2]},{bi:bS.userData.i,a0:Lf.JA[2],a1:Lf.JA[3]},{bi:bM.userData.i,a0:Lf.JA[3],a1:Lf.JA[4]},{bi:bF.userData.i,a0:Lf.JA[4],a1:Lf.JA[5]}]);
+    skinned.push([Lf.geo,M.plainS]);
+    // feet
+    const foot=L.foot||'claw';
+    if(foot==='pad'){const pad=new THREE.Mesh(new THREE.CylinderGeometry(rM*1.2,rM*1.4,rM*1.05,18),M.plainR);pad.position.set(rM*.1,-rM*.5,0);pad.castShadow=true;bF.add(pad);
+      for(let k=-1;k<=1;k++){const c=new THREE.Mesh(new THREE.ConeGeometry(rM*.14,rM*.4,8),M.claw);c.rotation.z=-Math.PI/2+.4;c.position.set(rM*1.25,-rM*.8,k*rM*.55);bF.add(c);}}
+    else{const n=L.toes||3,spr={2:[-.1,.14],3:[-.36,0,.36],4:[-.5,-.16,.18,.5],5:[-.62,-.3,0,.3,.62]}[n],hoof=foot==='hoof';
+      spr.forEach((sa,k)=>{const tl=l4*(hoof?.62:(n===2?[.8,1][k]:[.75,1,.8,.6,.55][k]||.7)),g=new THREE.Group();g.rotation.y=-sa;g.position.y=-(rM*1.05-rM*.55);
+        const tr=rM*(hoof?.5:.42),drop=tr*.85,kn=hoof?1:3;
+        const T=loft([{x:-tr*.4,y:tr*.15},{x:tl*.5,y:-drop*.45},{x:tl,y:-drop}],hi?18:10,hi?12:8,(JA,tot)=>a=>{const t=a/tot,kb=1+.16*Math.pow(Math.sin(t*Math.PI*kn),2),e=Math.max(Math.sqrt(clamp((1-t)/.1,0,1)),.3);return{h:tr*(1-.4*t)*kb*e,w:tr*1.15*(1-.35*t)*kb*e,bot:.75};});
+        const tm=new THREE.Mesh(T.geo,M.plainR);tm.castShadow=true;g.add(tm);
+        if(hoof){const c=new THREE.Mesh(new THREE.SphereGeometry(tr*.8,14,10),M.keratin);c.scale.set(1.1,.7,1.15);c.position.set(tl,-drop-tr*.1,0);g.add(c);}
+        else{const cl=tr*2.8,C=loft([{x:0,y:0},{x:cl*.55,y:-cl*.06},{x:cl,y:-cl*.5}],hi?14:8,8,(JA,tot)=>a=>{const t=a/tot,r=tr*.5*Math.pow(1-t,.9)+.0006;return{h:r*1.2,w:r*.75};});
+          const cm=new THREE.Mesh(C.geo,M.claw);cm.position.set(tl-tr*.2,-drop+tr*.08,0);cm.castShadow=true;g.add(cm);}
+        bF.add(g);});}
+    const legObj={b:[bT,bS,bM,bF],l:[l1,l2,l3],bend,alpha:al,rest:{x:ball.x,y:ball.y},fore,z,len,rT,rM,
+      fold:fore?{x:hx+.05*len,y:ballY,alpha:-1.2}:{x:hx+len*.25,y:ballY,alpha:1.42}};
+    legs.push(legObj);return legObj;
+  }
+  const hz=b.wT[0]*(b.hind.spread||.72);
+  const sh=[Math.cos(b.pitch),Math.sin(b.pitch)];
+  const hipLocal={x:b.trunk*.02,y:-b.hT[0]*(b.fore?.35:.5)},hipW={x:hipLocal.x*sh[0]-hipLocal.y*sh[1],y:b.H+hipLocal.x*sh[1]+hipLocal.y*sh[0]};
+  for(const z of [1,-1]){const L=limb(pel,hipW.x,hipW.y,z*hz,b.hind,false);L.off=z>0?0:.5;L.offRun=z>0?0:.5;}
+  const shoulderW=(dx,dy)=>{const ud=shoulder.userData,c=Math.cos(ud.abs),s=Math.sin(ud.abs),lx=ud.len+dx;return{x:ud.x+lx*c-dy*s,y:ud.y+lx*s+dy*c};};
+  if(b.fore){const fw=shoulderW(-b.trunk*.06,-b.hT[2]*.95);
+    for(const z of [1,-1]){const L=limb(shoulder,fw.x,fw.y,z*b.wT[2]*.7,b.fore,true);L.off=z>0?.25:.75;L.offRun=z>0?.5:1;}}
+  if(b.arm){const A=b.arm,aw=shoulderW(-b.trunk*.04,-b.hT[2]*.9),rel=[-1.3,-.4,-.95];
+    for(const z of [1,-1]){const sa=shoulder.userData.abs,ab=rel.map(r=>sa+r),r=A.r,zz=z*b.wT[2]*.72;
+      const e={x:aw.x+A.l[0]*Math.cos(ab[0]),y:aw.y+A.l[0]*Math.sin(ab[0])},w={x:e.x+A.l[1]*Math.cos(ab[1]),y:e.y+A.l[1]*Math.sin(ab[1])},he={x:w.x+A.l[2]*Math.cos(ab[2]),y:w.y+A.l[2]*Math.sin(ab[2])};
+      const bU=mk(shoulder,aw.x,aw.y,ab[0],zz),bL=mk(bU,e.x,e.y,ab[1],zz),bH=mk(bL,w.x,w.y,ab[2],zz);
+      const end={x:he.x+Math.cos(ab[2])*r*.3,y:he.y+Math.sin(ab[2])*r*.3};
+      const Lf=loft([{x:aw.x+r*.2,y:aw.y+r*1.4},aw,e,w,he,end],hi?30:18,hi?12:10,(JA)=>a=>{
+        if(a<JA[1])return{h:r*1.4,w:r*1.1};
+        if(a<JA[2]){const t=(a-JA[1])/(JA[2]-JA[1]);return{h:lerp(r*1.4,r*.8,t),w:lerp(r*1.15,r*.75,t)};}
+        if(a<JA[3]){const t=(a-JA[2])/(JA[3]-JA[2]);return{h:lerp(r*.85,r*.6,t)+r*.15*Math.sin(Math.PI*t),w:lerp(r*.75,r*.55,t)};}
+        if(a<JA[4]){const t=(a-JA[3])/(JA[4]-JA[3]);return{h:lerp(r*.6,r*.4,t),w:lerp(r*.6,r*.75,t)};}
+        const t=clamp((a-JA[4])/(JA[5]-JA[4]),0,1),k=Math.sqrt(1-t*t);return{h:r*.4*k+.001,w:r*.75*k+.001};});
+      Lf.geo.translate(0,0,zz);
+      skinAttrs(Lf,[{bi:shoulder.userData.i,a0:Lf.JA[0],a1:Lf.JA[1]},{bi:bU.userData.i,a0:Lf.JA[1],a1:Lf.JA[2]},{bi:bL.userData.i,a0:Lf.JA[2],a1:Lf.JA[3]},{bi:bH.userData.i,a0:Lf.JA[3],a1:Lf.JA[5]}]);
+      skinned.push([Lf.geo,M.plainS]);
+      const nf=A.fingers||3;for(let k=0;k<nf;k++){const c=new THREE.Mesh(new THREE.ConeGeometry(r*.28,r*2.2,8),M.claw),sp2=(k-(nf-1)/2)*r*.55;
+        c.position.set(A.l[2]+r*.5,-r*.4,sp2);c.rotation.z=-Math.PI/2-.9;bH.add(c);}
+      arms.push({bones:[bU,bL,bH],rel,side:z});}}
+
+  // ---- head ----
+  const h=b.head,HL=h.L,HH=h.H,HW=h.W,yOff=HH*.3;
+  const skY=f=>{const xs=[-.14,.25,.65,1],ys=[yOff+.06*HH,yOff,yOff-.08*HH,yOff-.16*HH];f=clamp(f,-.14,1);for(let i=0;i<3;i++)if(f<=xs[i+1]){const t=(f-xs[i])/(xs[i+1]-xs[i]);return lerp(ys[i],ys[i+1],t);}return ys[3];};
+  const envH=f=>Math.sqrt(clamp((f+.14)/.18,0,1))*Math.sqrt(clamp((1-f)/.07,0,1));
+  const hh=f=>HH*lerp(1,h.snout,Math.pow(smooth(.1,1,f),.9))*Math.max(envH(f),.001),ww=f=>HW*lerp(1,h.snoutW,smooth(.1,1,f))*Math.max(envH(f),.001);
+  const skBot=f=>skY(f)-.42*hh(f);
+  const sk=loft([-.14,.25,.65,1].map(f=>({x:f*HL,y:skY(f)})),hi?48:28,hi?24:14,(JA,total)=>a=>{const f=-.14+1.14*a/total;return{h:hh(f),w:ww(f),bot:.42,e:2.2};});
+  const skull=new THREE.Mesh(sk.geo,M.plainR);skull.castShadow=true;head.add(skull);
+  const jawP=new THREE.Group();jawP.position.set(.04*HL,0,0);head.add(jawP);
+  const jh=f=>HH*h.jaw*lerp(1,.6,smooth(.2,1,f))*Math.max(Math.sqrt(clamp((f+.08)/.15,0,1))*Math.sqrt(clamp((.97-f)/.08,0,1)),.001);
+  const jY=f=>skBot(f)-jh(f)*.45-.012*HL;
+  const jl=loft([-.08,.3,.65,.97].map(f=>({x:f*HL-.04*HL,y:jY(f)})),hi?36:20,hi?18:12,(JA,total)=>a=>{const f=-.08+1.05*a/total;return{h:jh(f),w:ww(Math.min(f,.95))*.93,top:.5};});
+  const jawM=new THREE.Mesh(jl.geo,M.plainR);jawM.castShadow=true;jawP.add(jawM);
+  const mo=new THREE.Mesh(new THREE.SphereGeometry(1,14,10),M.mouth);mo.scale.set(.4*HL,HH*.2,ww(.5)*.72);mo.position.set(.52*HL,skBot(.5)-.02*HH,0);head.add(mo);
+  if(h.teeth){const n=h.teeth,tl=h.toothL;for(const z of [1,-1])for(let k=0;k<n;k++){const f=.3+.64*k/(n-1),s=tl*(1-.35*Math.abs(k/(n-1)-.35));
+    const t=new THREE.Mesh(new THREE.ConeGeometry(s*.28,s,6),M.tooth);t.rotation.z=Math.PI;t.position.set(f*HL,skBot(f)+s*.14,z*ww(f)*.82);head.add(t);
+    if(k%2===0){const lt=new THREE.Mesh(new THREE.ConeGeometry(s*.24,s*.8,6),M.tooth);lt.position.set(f*HL-.04*HL,jY(f)+jh(f)*.45+s*.2,z*ww(f)*.72);jawP.add(lt);}}}
+  if(h.beak){const f=.93,bk=new THREE.Mesh(new THREE.SphereGeometry(1,14,10),M.keratin);bk.scale.set(.1*HL,hh(.88)*1.05,ww(.88)*1.08);bk.position.set(.93*HL,skY(f)-hh(.88)*.1,0);head.add(bk);
+    const lb=new THREE.Mesh(new THREE.SphereGeometry(1,12,8),M.keratin);lb.scale.set(.09*HL,jh(.85)*1.1,ww(.88)*.95);lb.position.set(.88*HL,jY(.9),0);jawP.add(lb);}
+  {const f=h.eyeX,er=h.eyeR,ey=skY(f)+hh(f)*.4,ez=ww(f)*.92-er*.35;
+    for(const z of [1,-1]){const e=new THREE.Mesh(new THREE.SphereGeometry(er,24,16),M.eye);e.position.set(f*HL,ey,z*ez);if(z<0)e.rotation.y=Math.PI;head.add(e);
+      const lid=new THREE.Mesh(new THREE.TorusGeometry(er*1.02,er*.32,10,28),M.plainR);lid.scale.set(1.08,.82,1);lid.position.set(f*HL,ey,z*(ez+er*.38));head.add(lid);
+      const lu=new THREE.Mesh(new THREE.SphereGeometry(er*1.25,16,10,0,Math.PI*2,0,Math.PI*.42),M.plainR);lu.scale.set(1.1,.7,.9);lu.position.set(f*HL,ey+er*.15,z*(ez-er*.05));lu.rotation.z=-.15;head.add(lu);
+      const nf=h.beak?.8:.9,no=new THREE.Mesh(new THREE.SphereGeometry(1,10,8),M.nostril);no.scale.set(.045*HL,hh(nf)*.14,ww(nf)*.12);no.position.set(nf*HL,skY(nf)+hh(nf)*.45,z*ww(nf)*.66);head.add(no);
+      if(h.teeth){const ad=new THREE.Mesh(new THREE.SphereGeometry(1,18,12),M.plainR);ad.scale.set(.2*HL,hh(.05)*.55,ww(.05)*.32);ad.position.set(.06*HL,skY(.05)-hh(.05)*.05,z*ww(.05)*.72);ad.castShadow=true;head.add(ad);}
+      if(h.brows){const br=new THREE.Mesh(h.brows==='horn'?new THREE.ConeGeometry(er*1.1,er*2.6,8):new THREE.SphereGeometry(er*1.6,12,8),M.plainR);
+        if(h.brows==='horn'){br.position.set((f-.07)*HL,ey+er*1.6,z*ez*.85);br.rotation.set(z*.3,0,-.3);}else{br.scale.set(1.4,.6,.9);br.position.set(f*HL,ey+er*1.25,z*ez*.9);}
+        br.castShadow=true;head.add(br);}}}
+  {const th=new THREE.Mesh(new THREE.SphereGeometry(1,18,12),M.plainR);th.scale.set(.3*HL,jh(.15)*1.15,ww(.1)*.75);th.position.set(.1*HL,jY(.15)-jh(.15)*.35,0);th.castShadow=true;head.add(th);}
+  const headInfo={L:HL,H:HH,W:HW,skY,hh,ww};
+
+  // ---- rigid attachment helper (rest space == root space during build) ----
+  root.updateMatrixWorld(true);
+  function attach(obj,bone,pos,quat){_m.copy(bone.matrixWorld).invert();obj.position.copy(pos).applyMatrix4(_m);
+    if(quat){bone.getWorldQuaternion(_q);obj.quaternion.copy(_q.invert().multiply(quat));}bone.add(obj);return obj;}
+  const A={};
+  function anchorAt(name,bone,pos){const o=new THREE.Object3D();attach(o,bone,pos);A[name]=o;}
+  function anchorLocal(name,parent,x,y,z){const o=new THREE.Object3D();o.position.set(x,y,z);parent.add(o);A[name]=o;}
+
+  // ---- features ----
+  const feat=(b.feat||[]);
+  const perBone=new Map();
+  const addTo=(bone,geo)=>{_m.copy(bone.matrixWorld).invert();geo.applyMatrix4(_m);if(!perBone.has(bone))perBone.set(bone,[]);perBone.get(bone).push(geo);};
+  const orientGeo=(g,pos,dir)=>{_q.setFromUnitVectors(Y_UP,dir.clone().normalize());g.applyMatrix4(new THREE.Matrix4().compose(pos,_q,new V3(1,1,1)));return g;};
+  if(feat.includes('plates')){
+    const shape=new THREE.Shape();shape.moveTo(-.5,0);shape.bezierCurveTo(-.55,.35,-.35,.7,0,1);shape.bezierCurveTo(.35,.7,.55,.35,.5,0);shape.lineTo(-.5,0);
+    const pg=new THREE.ExtrudeGeometry(shape,{depth:.05,bevelEnabled:true,bevelThickness:.012,bevelSize:.012,bevelSegments:2,curveSegments:10});pg.translate(0,0,-.025);vcolorGeo(pg,b.skin.base,b.plateC,.05,.8);
+    const n=17,u0=uP*.45,u1=uS+(1-uS)*.55,uPk=uP+(uS-uP)*.12;
+    for(let i=0;i<n;i++){const f=i/(n-1),u=lerp(u0,u1,f),side=i%2?1:-1,size=.78*(.3+.7*Math.exp(-Math.pow((u-uPk)/((u1-u0)*.3),2)));
+      const q=bodyPt(u,Math.PI/2+side*.14),m=new THREE.Mesh(pg,M.vcol);m.castShadow=true;m.scale.set(size*.95,size,1);
+      const Z=new V3().crossVectors(q.T,q.N).normalize(),quat=new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(q.T,q.N,Z)).multiply(new THREE.Quaternion().setFromAxisAngle(new V3(1,0,0),-side*.14));
+      attach(m,ownerBone(u),q.p.clone().addScaledVector(q.N,-size*.06),quat);if(i===7)anchorLocal('plate',m,0,1.05,0);}}
+  if(feat.includes('spikes')){
+    [[.075,1],[.075,-1],[.12,1],[.12,-1]].forEach(([u,s],k)=>{const q=bodyPt(u,s>0?.5:Math.PI-.5),dir=q.n.clone().multiplyScalar(1).addScaledVector(q.N,.55).addScaledVector(q.T,-.9).normalize();
+      const g=new THREE.ConeGeometry(.055,.75,12);g.translate(0,.375,0);const m=new THREE.Mesh(g,M.horn);m.castShadow=true;
+      attach(m,ownerBone(u),q.p,new THREE.Quaternion().setFromUnitVectors(Y_UP,dir));if(k===0)anchorLocal('spikes',m,0,.75,0);});}
+  if(feat.includes('sail')){
+    const u0=uP-.005,u1=uS+.01,N=24,top=[],bot=[];
+    for(let i=0;i<=N;i++){const f=i/N,q=bodyPt(lerp(u0,u1,f),Math.PI/2),hgt=1.65*Math.pow(Math.sin(Math.PI*f),.8)*(.78+.22*Math.sin(Math.PI*f*1.1));bot.push(new THREE.Vector2(q.p.x,q.p.y-.12));top.push(new THREE.Vector2(q.p.x-hgt*.08,q.p.y+Math.max(.04,hgt)));}
+    const shape=new THREE.Shape([...bot,...top.reverse()]);
+    const g=new THREE.ExtrudeGeometry(shape,{depth:.06,bevelEnabled:true,bevelThickness:.02,bevelSize:.02,bevelSegments:2});g.translate(0,0,-.03);
+    vcolorGeo(g,b.skin.base,b.sailC,b.H+.2,b.H+1.9);const m=new THREE.Mesh(g,M.vcol);m.castShadow=true;attach(m,pel,new V3(0,0,0),new THREE.Quaternion());
+    anchorAt('sail',pel,new V3(bodyPt((u0+u1)/2,Math.PI/2).p.x,bodyPt((u0+u1)/2,Math.PI/2).p.y+1.4,0));}
+  if(feat.includes('armor')){
+    const ac=b.armorC;
+    for(let u=uP*.35;u<=uS+(1-uS)*.35;u+=.012){const trunk=u>uP&&u<uS;
+      for(let an=.1*Math.PI;an<=.9*Math.PI+1e-3;an+=Math.PI*(trunk?.1:.2)){const q=bodyPt(u,an),side=an<.16*Math.PI||an>.84*Math.PI,s=trunk?(side?1.5:1):.75;
+        const g=side?new THREE.ConeGeometry(.07*s,.2*s,6):new THREE.ConeGeometry(.08*s,.07*s,7);g.translate(0,side?.1*s:.035*s,0);
+        addTo(ownerBone(u),orientGeo(g,q.p.clone().addScaledVector(q.n,-.01),q.n));}}
+    perBone.forEach((list,bone)=>{const m=new THREE.Mesh(mergeGeos(list),stdMat(ac,{roughness:.7}));m.castShadow=true;bone.add(m);});perBone.clear();
+    anchorAt('armor',pel,bodyPt((uP+uS)/2,Math.PI/2,.06).p);}
+  if(feat.includes('club')){const last=tail[tail.length-1],len=last.userData.len,cm=stdMat(b.armorC,{roughness:.65});
+    [[0,0,.26,.16,.2],[.02,.17,.2,.14,.16],[.02,-.17,.2,.14,.16]].forEach(([dx,dz,sx,sy,sz])=>{const m=new THREE.Mesh(new THREE.SphereGeometry(1,16,12),cm);m.scale.set(sx,sy,sz);m.position.set(len*.55+dx,0,dz);m.castShadow=true;last.add(m);});
+    anchorLocal('club',last,len*.55,.2,0);}
+  if(feat.includes('thumb')){legs.filter(L=>L.fore).forEach(L=>{const g=new THREE.ConeGeometry(L.rM*.45,L.rM*2.4,10);g.translate(0,L.rM*1.2,0);const m=new THREE.Mesh(g,M.horn);
+    m.position.set(L.rM*.5,L.rM*.2,-Math.sign(L.z)*L.rM*.7);m.quaternion.setFromUnitVectors(Y_UP,new V3(.35,.8,-Math.sign(L.z)*.5).normalize());L.b[3].add(m);if(L.z>0)anchorLocal('thumb',m,0,L.rM*2.4,0);});}
+  if(feat.includes('sickle')){legs.filter(L=>!L.fore).forEach(L=>{const g=new THREE.ConeGeometry(.007,.065,8);g.translate(0,.0325,0);const m=new THREE.Mesh(g,M.claw);m.position.set(.012,.004,0);m.rotation.z=-.5;L.b[3].add(m);if(L.z>0)anchorLocal('claw',m,0,.06,.01);});}
+  if(feat.includes('feathers')){
+    const fc=mkCanvas(64,256),x=fc.getContext('2d'),fcol=b.featherC||b.skin.base;
+    const gr=x.createLinearGradient(0,256,0,0);gr.addColorStop(0,b.skin.belly);gr.addColorStop(.35,fcol);gr.addColorStop(1,b.skin.patC||fcol);
+    x.fillStyle=gr;x.beginPath();x.moveTo(32,254);x.bezierCurveTo(4,190,6,60,32,2);x.bezierCurveTo(58,60,60,190,32,254);x.fill();
+    x.strokeStyle='rgba(30,20,10,.5)';x.lineWidth=2;x.beginPath();x.moveTo(32,254);x.lineTo(32,4);x.stroke();
+    x.strokeStyle='rgba(255,255,255,.12)';for(let i=0;i<40;i++){const yy=250-i*6;x.beginPath();x.moveTo(32,yy);x.lineTo(8,yy-14);x.moveTo(32,yy);x.lineTo(56,yy-14);x.stroke();}
+    const ft=new THREE.CanvasTexture(fc);ft.encoding=THREE.sRGBEncoding;disp.push(ft);
+    const fm=new THREE.MeshStandardMaterial({map:ft,alphaTest:.5,side:THREE.DoubleSide,roughness:.8});
+    const fg=(L,W)=>{const g=new THREE.PlaneGeometry(W,L);g.translate(0,L/2,0);return g;};
+    arms.forEach(a=>{const [,bL,bH]=a.bones,r=b.arm.r;[[bL,b.arm.l[1]],[bH,b.arm.l[2]]].forEach(([bn,l],j)=>{const n=j?4:5;
+      for(let k=0;k<n;k++){const len=(b.arm.l[1]+b.arm.l[2])*(.55+.35*(j?1-k/n:k/n)),m=new THREE.Mesh(fg(len,len*.22),fm);m.position.set(l*k/n,-r*.3,a.side*r*.6);m.rotation.z=Math.PI*.62+(j?.25:0)+k*.03;m.castShadow=true;bn.add(m);}});});
+    const tlF=tail.slice(-4);tlF.forEach((bn,j)=>{const len=b.tail.len*(.14+.05*j);for(const s of [1,-1])for(let k=0;k<2;k++){const m=new THREE.Mesh(fg(len,len*.2),fm);m.position.set(bn.userData.len*k*.5,0,s*.01);m.rotation.set(Math.PI/2,0,0);m.rotateOnAxis(new V3(0,0,1),-s*(1.9-j*.12));m.castShadow=true;bn.add(m);}});
+    if(b.arm)anchorLocal('arm',arms[0].bones[1],b.arm.l[1]*.5,-b.arm.l[1]*.3,b.arm.r*2);}
+  if(feat.includes('frill')){
+    const R=HL*.72,N=60,pts=[];for(let i=0;i<=N;i++){const th=-.12*Math.PI+1.24*Math.PI*i/N,sc=1+.06*Math.max(0,Math.sin(th*14));pts.push(new THREE.Vector2(Math.cos(th)*R*1.08*sc,Math.sin(th)*R*.92*sc));}
+    const shape=new THREE.Shape(pts);const g=new THREE.ExtrudeGeometry(shape,{depth:.06,bevelEnabled:true,bevelThickness:.035,bevelSize:.035,bevelSegments:3,curveSegments:24});
+    g.translate(0,0,-.03);vcolorGeo(g,b.skin.base,b.frillC,R*.1,R*.95);g.rotateY(Math.PI/2);
+    const m=new THREE.Mesh(g,M.vcol);m.castShadow=true;m.position.set(.06*HL,skY(0)+hh(0)*.35,0);m.rotation.z=.95;head.add(m);anchorLocal('frill',m,0,R*.85,0);}
+  if(feat.includes('horns')){
+    const horn=(len,r0)=>{const Lf=loft([{x:0,y:0},{x:len*.5,y:len*.06},{x:len,y:len*.22}],20,10,(JA,t)=>a=>{const u=a/t,k=Math.pow(1-u,.9)*r0+.003;return{h:k,w:k};});return new THREE.Mesh(Lf.geo,M.horn);};
+    for(const z of [1,-1]){const m=horn(1.0,.1);m.castShadow=true;m.position.set((h.eyeX+.03)*HL,skY(h.eyeX)+hh(h.eyeX)*.8,z*ww(h.eyeX)*.45);m.rotation.set(0,z*-.12,.6);head.add(m);if(z>0)anchorLocal('horn',m,1.0,.22,0);}
+    const nh=horn(.32,.07);nh.position.set(.8*HL,skY(.8)+hh(.8)*.75,0);nh.rotation.z=1.15;head.add(nh);}
+  if(feat.includes('crestPara')){
+    const f0=.55,t0={x:f0*HL,y:skY(f0)+hh(f0)*.55},top=skY(.2)+hh(.2);
+    const Lf=loft([t0,{x:.15*HL,y:top+.45*HH},{x:-.45*HL,y:top+.85*HH},{x:-1.25*HL,y:top+.75*HH}],40,14,(JA,t)=>a=>{const u=a/t,e=Math.sqrt(clamp((1-u)/.06,0,1));return{h:HH*.34*e+.002,w:HH*.2*e+.002};});
+    const cm=skinMat(tp,false,{color:col(b.crestC)});const m=new THREE.Mesh(Lf.geo,cm);m.castShadow=true;head.add(m);
+    anchorLocal('crest',head,-.6*HL,top+.95*HH,0);}
+  if(feat.includes('dome')){
+    const dm=skinMat(tp,false,{color:col('#EFE3C8')});
+    const d=new THREE.Mesh(new THREE.SphereGeometry(1,24,16),dm);d.scale.set(.36*HL,.3*HL,HW*1.08);d.position.set(.28*HL,skY(.28)+hh(.28)*.62,0);d.castShadow=true;head.add(d);
+    for(let k=0;k<9;k++){const th=Math.PI*(.55+.9*k/8),c=new THREE.Mesh(new THREE.ConeGeometry(.018,.05,6),dm);c.position.set(.28*HL+Math.cos(th)*.36*HL*.95,skY(.1)+hh(.1)*.6,Math.sin(th)*HW*1.02);c.rotation.set(Math.sin(th)*1.2,0,Math.cos(th)*1.2);head.add(c);}
+    anchorLocal('dome',head,.28*HL,skY(.28)+hh(.28)*.62+.3*HL,0);}
+  if(feat.includes('nasal')){const m=new THREE.Mesh(new THREE.SphereGeometry(1,16,12),M.plainR);m.scale.set(.26*HL,HH*.58,HW*.7);m.position.set(.33*HL,skY(.33)+hh(.33)*.82,0);m.castShadow=true;head.add(m);}
+  if(feat.includes('ankyHorns')){for(const z of [1,-1]){[[.0,.7,.95,.09,.22,[z*.5,0,1.9]],[.3,-.1,.95,.06,.14,[z*.3,0,2.6]]].forEach(([f,yy,zz,r,l,rot])=>{const g=new THREE.ConeGeometry(r,l,8);g.translate(0,l/2,0);const m=new THREE.Mesh(g,M.plainR);
+    m.position.set(f*HL,skY(f)+hh(f)*yy,z*ww(Math.max(f,0))*zz);m.rotation.set(rot[0],rot[1],rot[2]);m.castShadow=true;head.add(m);});}}
+
+  if(!feat.some(f=>['plates','armor','sail','feathers'].includes(f))){
+    const uEnd=uS+(1-uS)*.92;let u=uP*.22;
+    while(u<uEnd){const q=bodyPt(u,Math.PI/2),sz=q.S.h*.05+.002,g=new THREE.ConeGeometry(sz*.9,sz*.9,6);g.scale(1,1,.7);g.translate(0,sz*.25,0);
+      addTo(ownerBone(u),orientGeo(g,q.p.clone().addScaledVector(q.N,q.S.h*.03),q.N));u+=sz*2.2/body.total;}
+    const sc=hexRGB(b.skin.patC||b.skin.base).map(v=>Math.round(v*.8)),sm=new THREE.MeshPhysicalMaterial({color:new THREE.Color(`rgb(${sc.join(',')})`).convertSRGBToLinear(),roughness:.6,clearcoat:.1});
+    perBone.forEach((list,bone)=>{const m=new THREE.Mesh(mergeGeos(list),sm);m.castShadow=true;bone.add(m);});perBone.clear();}
+
+  // ---- skinned meshes ----
+  root.updateMatrixWorld(true);
+  const skeleton=new THREE.Skeleton(bones);
+  skinned.forEach(([g,mat])=>{const m=new THREE.SkinnedMesh(g,mat);m.castShadow=true;m.receiveShadow=true;m.frustumCulled=false;root.add(m);meshes.push(m);});
+  root.updateMatrixWorld(true);
+  meshes.forEach(m=>m.bind(skeleton));
+  root.traverse(o=>{if(o.isMesh&&!o.isSkinnedMesh){o.castShadow=true;}});
+
+  // ---- anchors ----
+  anchorLocal('head',head,.35*HL,skY(.35)+hh(.35)+.02*HL,0);
+  anchorLocal('jaw',jawP,.78*HL,jY(.8),0);
+  anchorLocal('mouth',jawP,.93*HL,jY(.93)+jh(.9)*.5,0);
+  anchorLocal('neck',neck[nn>>1],nsl*.5,body.sec(body.JA[iS+(nn>>1)]).h*.9,0);
+  anchorAt('body',pel,bodyPt((uP+uS)/2,Math.PI/2).p);
+  anchorAt('tail',ownerBone(uP*.35),bodyPt(uP*.35,Math.PI/2).p);
+  const hL=legs.find(L=>!L.fore&&L.z>0);anchorLocal('leg',hL.b[1],0,0,hL.rT*.7);
+  const fL=legs.find(L=>L.fore&&L.z>0);if(fL)anchorLocal('fleg',fL.b[1],0,0,fL.rT*.8);
+  if(arms.length&&!A.arm)anchorLocal('arm',arms[0].bones[1],0,0,b.arm.r*1.8);
+
+  // ---- metrics ----
+  root.updateMatrixWorld(true);const box=new THREE.Box3().setFromObject(root);
+  const fW=1.5/(2*Math.PI)*Math.sqrt(9.8/legLen);
+  const D={sp,b,root,bones,meshes,M,disp,pel,spine,neck,head,jaw:jawP,tail,legs,arms,A,box,legLen,
+    biped:!b.fore,fW,fR:fW*1.9,jawMax:h.teeth?.75:.5,headInfo,
+    neckW:neck.map((_,i)=>(nn-i)/(nn*(nn+1)/2)),
+    restY:1.52*Math.max(...b.hT)*.92,
+    Rp:Math.max(7,sp.len*1.25),theta:0,
+    c:{dy:0,pitch:0,neck:0,head:0,jaw:0,tail:0,lie:0,v:0},g:{phase:0,stride:0,liftK:0,duty:.6,rb:0,bob:0,pitch:0,tailYaw:0,tailPh:0,armSw:0,breath:0}};
+  return D;
+}
+
+/* ============================ posing ============================ */
+const G0={phase:0,stride:0,liftK:0,duty:.6,rb:0,bob:0,pitch:0,tailYaw:0,tailPh:0,armSw:0,breath:0};
+function footTarget(L,g,D){
+  const off=lerp(L.off,L.offRun,g.rb||0);let p=((g.phase||0)+off)%1;if(p<0)p+=1;
+  const S=g.stride||0;let x=L.rest.x,y=L.rest.y,al=L.alpha,toe=0;
+  if(S>1e-5||g.liftK>0){const d=g.duty;
+    if(p<d)x+=S*(.5-p/d);
+    else{const s=(p-d)/(1-d);x+=S*(-.5+s*s*(3-2*s));const lf=Math.sin(Math.PI*s)*g.liftK;y+=g.liftH*(L.len/D.legLen)*lf;al+=lf*(L.fore?.35:.8);toe=-.9*lf;}}
+  return{x,y,al,toe};
+}
+function applyPose(D,c,g){
+  const b=D.b,root=D.root;
+  D.pel.position.set(0,b.H+c.dy+(g.bob||0),0);
+  const pA=b.pitch+c.pitch+(g.pitch||0);D.pel.rotation.set(0,0,pA);
+  let a=pA;D.spine.forEach(bn=>{bn.rotation.z=bn.userData.rest+(g.breath||0);a+=bn.rotation.z;});
+  const shA=a;
+  D.neck.forEach((bn,i)=>{bn.rotation.z=bn.userData.rest+c.neck*D.neckW[i];bn.rotation.y=(c.yaw||0)*D.neckW[i];a+=bn.rotation.z;});
+  D.head.rotation.set(0,c.hyaw||0,(b.head.ang+c.head)-a);
+  D.jaw.rotation.z=-clamp(c.jaw,0,1.2)*D.jawMax;
+  const tn=D.tail.length;
+  D.tail.forEach((bn,i)=>{bn.rotation.z=bn.userData.rest-c.tail*(i<2?.5:.1);bn.rotation.y=(g.tailYaw||0)*Math.sin((g.tailPh||0)-i*.6)*(.3+i/tn);});
+  D.arms.forEach(A=>{const sw=(g.armSw||0)*A.side,t=c.lie*.7;A.bones[0].rotation.z=A.rel[0]+sw+t;A.bones[1].rotation.z=A.rel[1]-A.rel[0]+t*.6;A.bones[2].rotation.z=A.rel[2]-A.rel[1];});
+  root.updateMatrixWorld(true);
+  D.legs.forEach(L=>{
+    const pa=L.fore?shA:pA,hp=L.b[0].getWorldPosition(_a);root.worldToLocal(hp);
+    const ft=footTarget(L,g,D),lie=c.lie,x=lerp(ft.x,L.fold.x,lie),y=lerp(ft.y,L.fold.y,lie),al=lerp(ft.al,L.fold.alpha,lie),toe=ft.toe*(1-lie);
+    const l=L.l,ax=x-l[2]*Math.sin(al),ay=y+l[2]*Math.cos(al),s=ik2(hp.x,hp.y,ax,ay,l[0],l[1],L.bend);
+    const rx=s.kx+l[1]*Math.cos(s.t2),ry=s.ky+l[1]*Math.sin(s.t2),t3=Math.atan2(y-ry,x-rx);
+    L.b[0].rotation.z=s.t1-pa;L.b[1].rotation.z=s.t2-s.t1;L.b[2].rotation.z=t3-s.t2;L.b[3].rotation.z=toe-t3;
+    L.b[0].updateMatrixWorld(true);});
+  clampChain(D,D.tail);clampChain(D,D.neck);
+}
+function clampChain(D,chain){
+  const root=D.root;
+  for(const bn of chain){const o=bn.getWorldPosition(_a);root.worldToLocal(o);const e=_b.set(bn.userData.len,0,0);bn.localToWorld(e);root.worldToLocal(e);
+    const minY=bn.userData.rEnd||0;
+    if(e.y<minY){const dx=e.x-o.x,dy=e.y-o.y,len=Math.hypot(dx,dy);if(len<1e-5)continue;
+      const th=Math.atan2(dy,dx),q=clamp((minY-o.y)/len,-1,1),as=Math.asin(q),th2=dx>=0?as:Math.PI-as;let d=th2-th;d=Math.atan2(Math.sin(d),Math.cos(d));
+      bn.rotation.z+=d;bn.updateMatrixWorld(true);}}
+}
+function stepGait(D,g,v,dt,t){
+  const [vW,vR]=D.b.speed,rb=clamp((v-vW)/(vR-vW),0,1),duty=D.biped?lerp(.62,.36,rb):lerp(.66,.48,rb);
+  let f=lerp(D.fW,D.fR,rb),stride=v*duty/f;const maxS=D.legLen*lerp(.9,1.9,rb);if(stride>maxS){stride=maxS;f=v*duty/stride;}
+  g.phase+=f*dt;if(g.phase>1e4)g.phase-=1e4;g.duty=duty;g.stride=stride;g.rb=rb;
+  g.liftK=clamp(v/(.35*vW),0,1);g.liftH=D.legLen*lerp(.1,.2,rb);
+  const amp=D.legLen*lerp(.012,-.04,rb)*g.liftK;
+  g.bob=(D.biped?amp*Math.cos(4*Math.PI*(g.phase-duty/2)):amp*.5*Math.cos(4*Math.PI*g.phase))-D.legLen*.03*rb*g.liftK;
+  g.pitch=(D.biped?-.04*rb:0)*g.liftK+.012*Math.sin(4*Math.PI*g.phase)*g.liftK;
+  g.tailPh+=dt*(1.1+2*Math.PI*f*g.liftK);g.tailYaw=(reduce?.015:.035)+.06*g.liftK;
+  g.armSw=.18*g.liftK*Math.sin(2*Math.PI*g.phase);
+  g.breath=Math.sin(t*(state==='rest'?1.1:1.7))*(state==='rest'?.012:.006);
+}
+
+/* ============================ environment ============================ */
+const THEMES={
+  day:{rimC:'#B8CCFF',rimI:.55,top:'#5E93CC',hor:'#D6E2E4',bot:'#C3BBA4',sun:new V3(.55,.72,.42),sunC:'#FFF1DA',sunI:2.35,hemS:'#D2E4F4',hemG:'#8A7A5C',hemI:.55,exp:1.0},
+  dusk:{rimC:'#8FA3E0',rimI:.5,top:'#26385A',hor:'#E3A46C',bot:'#6B5A48',sun:new V3(.85,.2,.35),sunC:'#FFB27A',sunI:2.4,hemS:'#6475A0',hemG:'#3A2E24',hemI:.5,exp:1.05}
+};
+const skyU={top:{value:new THREE.Color()},hor:{value:new THREE.Color()},bot:{value:new THREE.Color()},sunDir:{value:new V3()},sunCol:{value:new THREE.Color()}};
+const sky=new THREE.Mesh(new THREE.SphereGeometry(1800,32,16),new THREE.ShaderMaterial({uniforms:skyU,side:THREE.BackSide,depthWrite:false,fog:false,
+  vertexShader:'varying vec3 vP;void main(){vP=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+  fragmentShader:'uniform vec3 top,hor,bot,sunCol,sunDir;varying vec3 vP;void main(){vec3 d=normalize(vP);float h=d.y;vec3 c=h>0.?mix(hor,top,pow(h,.5)):mix(hor,bot,pow(min(1.,-h*5.),.7));float s=max(dot(d,normalize(sunDir)),0.);c+=sunCol*(pow(s,900.)*1.6+pow(s,10.)*.16);gl_FragColor=vec4(c,1.);}'}));
+sky.frustumCulled=false;sky.renderOrder=-1;scene.add(sky);
+const hemi=new THREE.HemisphereLight(0xffffff,0x444444,.5);scene.add(hemi);
+const sun=new THREE.DirectionalLight(0xffffff,2.5);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.bias=-.0004;sun.shadow.normalBias=.02;scene.add(sun,sun.target);
+const rim=new THREE.DirectionalLight(0xb8ccff,.5);rim.target=sun.target;scene.add(rim);
+scene.fog=new THREE.Fog(0xcccccc,60,420);
+const pmrem=new THREE.PMREMGenerator(renderer);let envRT=null,theme=null;
+function applyTheme(){
+  const dark=document.documentElement.getAttribute('data-theme')==='dark'||(document.documentElement.getAttribute('data-theme')!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches);
+  const T=THEMES[dark?'dusk':'day'];if(theme===T)return;theme=T;
+  skyU.top.value.set(T.top);skyU.hor.value.set(T.hor);skyU.bot.value.set(T.bot);skyU.sunDir.value.copy(T.sun).normalize();skyU.sunCol.value.set(T.sunC);
+  scene.fog.color=col(T.hor);sun.color=col(T.sunC);sun.intensity=T.sunI;hemi.color=col(T.hemS);hemi.groundColor=col(T.hemG);hemi.intensity=T.hemI;rim.color=col(T.rimC);rim.intensity=T.rimI;renderer.toneMappingExposure=T.exp;
+  const es=new THREE.Scene(),eg=new THREE.SphereGeometry(10,32,16),ec=[],p=eg.attributes.position,A=col(T.top),B=col(T.hor),C=col(T.bot);
+  for(let i=0;i<p.count;i++){const y=p.getY(i)/10,cc=y>0?B.clone().lerp(A,Math.pow(y,.5)):B.clone().lerp(C,Math.min(1,-y*3));ec.push(cc.r,cc.g,cc.b);}
+  eg.setAttribute('color',new THREE.Float32BufferAttribute(ec,3));es.add(new THREE.Mesh(eg,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide})));
+  const sb=new THREE.Mesh(new THREE.SphereGeometry(.8,12,8),new THREE.MeshBasicMaterial({color:col(T.sunC).multiplyScalar(6)}));sb.position.copy(T.sun).normalize().multiplyScalar(8);es.add(sb);
+  if(envRT)envRT.dispose();envRT=pmrem.fromScene(es,.03);scene.environment=envRT.texture;
+}
+applyTheme();
+new MutationObserver(applyTheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyTheme);
+
+// ground
+const GS=1600,gGeo=new THREE.PlaneGeometry(GS,GS,200,200);gGeo.rotateX(-Math.PI/2);
+{const p=gGeo.attributes.position,cc=[];for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i),r=Math.hypot(x,z);
+  p.setY(i,fbm(x*.006,z*.006,0,0,3,4)*smooth(110,420,r)*55+(r>110?(fbm(x*.03,z*.03,0,0,4,2)-.5)*smooth(110,200,r)*3:0));
+  const m=fbm(x*.02+7,z*.02,0,0,5,3),k=.78+.34*fbm(x*.08,z*.08,0,0,6,2);cc.push(lerp(1,.8,m)*k,lerp(1,1.04,m)*k,lerp(1,.72,m)*k);}
+  gGeo.setAttribute('color',new THREE.Float32BufferAttribute(cc,3));gGeo.computeVertexNormals();}
+function groundTex(){const N=512,c=mkCanvas(N,N),x=c.getContext('2d'),im=x.createImageData(N,N),d=im.data,S=hexRGB('#8B7656'),Mo=hexRGB('#5C6A37'),Dk=hexRGB('#5E4D36');
+  for(let y=0;y<N;y++)for(let xx=0;xx<N;xx++){const u=xx/N,v=y/N,n=fbm(u*16,v*16,16,16,11,4),m=smooth(.42,.62,fbm(u*4,v*4,4,4,21,3)),dd=smooth(.55,.75,fbm(u*32,v*32,32,32,31,2)),k=.72+.56*n,i=(y*N+xx)*4;
+    let r=lerp(S[0],Mo[0],m),g=lerp(S[1],Mo[1],m),b=lerp(S[2],Mo[2],m);r=lerp(r,Dk[0],dd*.5);g=lerp(g,Dk[1],dd*.5);b=lerp(b,Dk[2],dd*.5);
+    const peb=hash(xx,y,5)>.996?1.35:1;d[i]=clamp(r*k*peb,0,255);d[i+1]=clamp(g*k*peb,0,255);d[i+2]=clamp(b*k*peb,0,255);d[i+3]=255;}
+  x.putImageData(im,0,0);const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(GS/12,GS/12);t.anisotropy=ANISO;return t;}
+const ground=new THREE.Mesh(gGeo,new THREE.MeshStandardMaterial({map:groundTex(),vertexColors:true,roughness:.97,envMapIntensity:.5}));ground.receiveShadow=true;scene.add(ground);
+
+// vegetation
+const R=(()=>{let s=77;return()=>{s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};})();
+function frondTex(){const c=mkCanvas(128,256),x=c.getContext('2d');x.lineCap='round';x.strokeStyle='#3F5A26';x.lineWidth=3;x.beginPath();x.moveTo(64,255);x.quadraticCurveTo(60,130,64,6);x.stroke();
+  for(let i=0;i<26;i++){const t=i/26,y=248-t*238,len=(1-t)*54+5;for(const s of [1,-1]){x.save();x.translate(64,y);const a0=.45+t*.4;x.rotate(s>0?-a0:Math.PI+a0);
+    x.fillStyle=`hsl(${84+R()*18},${38+R()*14}%,${22+R()*12}%)`;x.beginPath();x.ellipse(len/2,0,len/2,3+(1-t)*3,0,0,Math.PI*2);x.fill();x.restore();}}
+  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;return t;}
+function frondGeo(bend){const g=new THREE.PlaneGeometry(.45,1,2,8);g.translate(0,.5,0);const p=g.attributes.position;for(let i=0;i<p.count;i++){const y=p.getY(i);p.setZ(i,-bend*y*y);p.setY(i,y*(1-.15*bend*y));}g.computeVertexNormals();return g;}
+function clumpGeo(n,bend,tilt,rise){const list=[];for(let i=0;i<n;i++){const g=frondGeo(bend*(.8+R()*.4));const m=new THREE.Matrix4().makeRotationY(i/n*Math.PI*2+R()*.3).multiply(new THREE.Matrix4().makeRotationX(-(tilt+R()*.25))).multiply(new THREE.Matrix4().makeScale(.8+R()*.4,.8+R()*.4,1));
+  if(rise)m.premultiply(new THREE.Matrix4().makeTranslation(0,rise,0));g.applyMatrix4(m);list.push(g);}return mergeGeos(list);}
+const fernMat=new THREE.MeshStandardMaterial({map:frondTex(),alphaTest:.5,side:THREE.DoubleSide,roughness:.9,envMapIntensity:.6});
+const fernGeo=clumpGeo(9,.55,.55,0);
+function scatter(mesh,n,rMin,rMax,sMin,sMax){const m=new THREE.Matrix4(),q=new THREE.Quaternion();
+  for(let i=0;i<n;i++){const a=R()*Math.PI*2,r=Math.sqrt(lerp(rMin*rMin,rMax*rMax,R())),x=Math.cos(a)*r,z=Math.sin(a)*r,s=lerp(sMin,sMax,R());
+    const y=ground.geometry?groundH(x,z):0;q.setFromAxisAngle(Y_UP,R()*Math.PI*2);m.compose(new V3(x,y,z),q,new V3(s,s,s));mesh.setMatrixAt(i,m);}
+  mesh.instanceMatrix.needsUpdate=true;scene.add(mesh);return mesh;}
+function groundH(x,z){const r=Math.hypot(x,z);return fbm(x*.006,z*.006,0,0,3,4)*smooth(110,420,r)*55+(r>110?(fbm(x*.03,z*.03,0,0,4,2)-.5)*smooth(110,200,r)*3:0);}
+const ferns=new THREE.InstancedMesh(fernGeo,fernMat,420);ferns.receiveShadow=true;scatter(ferns,420,4,170,.5,1.4);
+// cycads
+const barkC=mkCanvas(64,256);{const x=barkC.getContext('2d');x.fillStyle='#5A4A36';x.fillRect(0,0,64,256);for(let i=0;i<400;i++){x.fillStyle=`rgba(${20+R()*40|0},${15+R()*30|0},10,${.2+R()*.3})`;x.fillRect(R()*64,R()*256,2+R()*6,8+R()*30);}}
+const barkT=new THREE.CanvasTexture(barkC);barkT.encoding=THREE.sRGBEncoding;barkT.wrapS=barkT.wrapT=THREE.RepeatWrapping;
+const barkMat=new THREE.MeshStandardMaterial({map:barkT,roughness:.95});
+const cyTrunk=new THREE.CylinderGeometry(.13,.17,.5,10);cyTrunk.translate(0,.25,0);
+const cyCrown=clumpGeo(14,.25,.75,.48);
+const cycadMat=fernMat.clone();cycadMat.color=col('#9CB08A');
+{const t=new THREE.InstancedMesh(cyTrunk,barkMat,40),c=new THREE.InstancedMesh(cyCrown,cycadMat,40),m=new THREE.Matrix4(),q=new THREE.Quaternion();
+  for(let i=0;i<40;i++){const a=R()*Math.PI*2,r=lerp(66,170,R()),x=Math.cos(a)*r,z=Math.sin(a)*r,s=lerp(1.6,3.4,R());q.setFromAxisAngle(Y_UP,R()*6.28);m.compose(new V3(x,groundH(x,z),z),q,new V3(s,s,s));t.setMatrixAt(i,m);c.setMatrixAt(i,m);}
+  t.castShadow=true;scene.add(t,c);}
+// araucaria trees
+function canopyGeo(){const list=[];[[0,.93,0,.2],[.14,.85,.05,.13],[-.12,.86,.08,.13],[.02,.84,-.15,.13],[-.05,.8,.12,.11],[.1,.78,-.1,.1]].forEach(([x,y,z,r],k)=>{
+  const g=new THREE.SphereGeometry(1,18,12),p=g.attributes.position;for(let i=0;i<p.count;i++){const vx=p.getX(i),vy=p.getY(i),vz=p.getZ(i),n=.75+.5*vnoise(vx*3+k*9,vz*3+vy*3,0,0,k);p.setXYZ(i,vx*n,vy*n*.55,vz*n);}
+  g.computeVertexNormals();g.applyMatrix4(new THREE.Matrix4().compose(new V3(x,y,z),new THREE.Quaternion(),new V3(r,r,r)));list.push(g);});
+  const g=mergeGeos(list),p=g.attributes.position,c=[];for(let i=0;i<p.count;i++){const t=smooth(.7,.98,p.getY(i));c.push(lerp(.45,1,t),lerp(.5,1,t),lerp(.45,1,t));}g.setAttribute('color',new THREE.Float32BufferAttribute(c,3));return g;}
+const trunkG=new THREE.CylinderGeometry(.016,.03,.9,10);trunkG.translate(0,.45,0);
+const canG=canopyGeo(),canMat=new THREE.MeshStandardMaterial({color:col('#3E5A31'),vertexColors:true,roughness:.95,envMapIntensity:.6});
+{const n=46,t=new THREE.InstancedMesh(trunkG,barkMat,n),c=new THREE.InstancedMesh(canG,canMat,n),m=new THREE.Matrix4(),q=new THREE.Quaternion();
+  for(let i=0;i<n;i++){const a=R()*Math.PI*2,r=lerp(80,260,R()),x=Math.cos(a)*r,z=Math.sin(a)*r,s=lerp(16,34,R());q.setFromAxisAngle(Y_UP,R()*6.28);m.compose(new V3(x,groundH(x,z)-.5,z),q,new V3(s,s,s));t.setMatrixAt(i,m);c.setMatrixAt(i,m);}
+  t.castShadow=c.castShadow=true;scene.add(t,c);}
+// rocks
+{const g=new THREE.SphereGeometry(1,20,14),p=g.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i),n=.8+.35*fbm(x*1.5+3,z*1.5+y,0,0,9,3);p.setXYZ(i,x*n,y*n*.7,z*n);}g.computeVertexNormals();
+  const rk=new THREE.InstancedMesh(g,stdMat('#8C8576',{roughness:.9}),50);const m=new THREE.Matrix4(),q=new THREE.Quaternion();
+  for(let i=0;i<50;i++){const a=R()*Math.PI*2,r=lerp(60,220,R()),x=Math.cos(a)*r,z=Math.sin(a)*r,s=lerp(.5,3.2,R());q.setFromEuler(new THREE.Euler(R(),R()*6,R()));m.compose(new V3(x,groundH(x,z)+s*.15,z),q,new V3(s,s*lerp(.6,1,R()),s*lerp(.8,1.3,R())));rk.setMatrixAt(i,m);}
+  rk.castShadow=rk.receiveShadow=true;scene.add(rk);}
+
+// human scale figure
+function buildHuman(){const g=new THREE.Group(),m=stdMat('#A3A7A9',{roughness:.55});
+  for(const s of [1,-1]){const l=new THREE.Mesh(new THREE.CylinderGeometry(.075,.055,.88,14),m);l.position.set(0,.46,s*.1);g.add(l);
+    const f=new THREE.Mesh(new THREE.BoxGeometry(.24,.06,.09),m);f.position.set(.06,.03,s*.1);g.add(f);
+    const a=new THREE.Mesh(new THREE.CylinderGeometry(.045,.035,.64,12),m);a.position.set(0,1.18,s*.24);a.rotation.x=s*.06;g.add(a);}
+  const t=new THREE.Mesh(new THREE.CylinderGeometry(.19,.14,.6,16),m);t.scale.z=.65;t.position.y=1.2;g.add(t);
+  const sh=new THREE.Mesh(new THREE.SphereGeometry(.19,16,10),m);sh.scale.set(.75,.35,1.25);sh.position.y=1.48;g.add(sh);
+  const n=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,.1,10),m);n.position.y=1.55;g.add(n);
+  const h=new THREE.Mesh(new THREE.SphereGeometry(.105,18,14),m);h.scale.set(1,1.12,.92);h.position.y=1.66;g.add(h);
+  g.traverse(o=>{if(o.isMesh)o.castShadow=true;});const lab=new THREE.Object3D();lab.position.y=1.95;g.add(lab);g.userData.label=lab;return g;}
+const human=buildHuman();scene.add(human);let showHuman=true;
+let grid=null;
+
+/* ============================ food props ============================ */
+function makeFerns(h){const g=new THREE.Group(),s=h/.9;for(let i=0;i<3;i++){const m=new THREE.Mesh(fernGeo,fernMat);m.scale.setScalar(s*(1-i*.15));m.position.set((i-1)*h*.5,0,(i%2?1:-1)*h*.35);m.rotation.y=i*2;g.add(m);}return g;}
+function makeTree(s){const g=new THREE.Group(),t=new THREE.Mesh(trunkG,barkMat),c=new THREE.Mesh(canG,canMat);t.scale.setScalar(s);c.scale.setScalar(s);t.castShadow=c.castShadow=true;g.add(t,c);return g;}
+function makeFish(L){const Lf=loft([{x:-L/2,y:0},{x:0,y:.02*L},{x:L/2,y:0}],40,16,(JA,t)=>a=>{const f=a/t,k=Math.pow(Math.sin(Math.PI*clamp(f*1.05,0,1)),.7);return{h:L*.11*k+.004,w:L*.05*k+.003};});
+  const sk=genSkin({base:'#51606A',belly:'#D8DCD6',pat:'spots',patC:'#2F3940',cell:.01},256,128,L,L*.5,true,3);
+  const m=skinMat(sk,false,{clearcoat:.6,clearcoatRoughness:.2});
+  const g=new THREE.Group(),b=new THREE.Mesh(Lf.geo,m);b.castShadow=true;g.add(b);
+  const tf=new THREE.Shape([new THREE.Vector2(0,0),new THREE.Vector2(-L*.2,L*.14),new THREE.Vector2(-L*.14,0),new THREE.Vector2(-L*.2,-L*.14)]);
+  const t=new THREE.Mesh(new THREE.ExtrudeGeometry(tf,{depth:.01,bevelEnabled:false}),stdMat('#46525A',{roughness:.5}));t.position.x=-L*.47;g.add(t);
+  g.rotation.x=Math.PI/2;const w=new THREE.Group();w.add(g);g.position.y=L*.05;w.userData.top=L*.1;w.userData.disp=[sk.map,sk.normal,sk.rough];return w;}
+function makePrey(len){const s=len/10,D2=buildDino({len:10,b:PREY_B},{low:true});
+  applyPose(D2,{dy:D2.restY-PREY_B.H,pitch:-PREY_B.pitch,neck:-.4,head:0,jaw:.2,tail:0,lie:1,yaw:0,hyaw:0},G0);
+  const w=new THREE.Group(),g=new THREE.Group();g.add(D2.root);D2.root.scale.setScalar(s);g.rotation.x=Math.PI/2;g.position.y=PREY_B.wT[1]*s*.95;w.add(g);
+  w.userData.top=PREY_B.wT[1]*s*2;w.userData.dino=D2;w.userData.axis=(PREY_B.trunk*.5)*s;return w;}
+function disposeObj(o){if(!o)return;o.traverse(x=>{if(x.isMesh&&x.geometry!==fernGeo&&x.geometry!==trunkG&&x.geometry!==canG)x.geometry.dispose();});
+  if(o.userData.dino)disposeDino(o.userData.dino);(o.userData.disp||[]).forEach(t=>t.dispose());scene.remove(o);}
+
+/* ============================ state machine ============================ */
+let D=null,prop=null,roar=null,tour=null;
+const tagEl=document.createElement('div');tagEl.className='tag';tagEl.textContent='人類 1.75 m';layer.appendChild(tagEl);
+function disposeDino(x){const ms=new Set(Object.values(x.M));x.root.traverse(o=>{if(o.isMesh){o.geometry.dispose();ms.add(o.material);}});ms.forEach(m=>m.dispose());x.disp.forEach(t=>t.dispose());if(x.root.parent)x.root.parent.remove(x.root);}
+function mouthLocal(X){const p=X.A.mouth.getWorldPosition(new V3());return X.root.worldToLocal(p);}
+function solveEat(X,targetY,base){const c=Object.assign({dy:0,pitch:0,neck:0,head:0,jaw:0,tail:0,lie:0,yaw:0,hyaw:0},base);
+  const f=v=>{c.neck=v;applyPose(X,c,G0);return mouthLocal(X).y;};let lo=-1.8,hi=.6;
+  if(f(lo)>targetY)return{neck:lo,m:mouthLocal(X)};if(f(hi)<targetY)return{neck:hi,m:mouthLocal(X)};
+  for(let i=0;i<20;i++){const mid=(lo+hi)/2;if(f(mid)>targetY)hi=mid;else lo=mid;}f((lo+hi)/2);return{neck:c.neck,m:mouthLocal(X)};}
+function enterEat(){
+  if(!D)return;disposeObj(prop);prop=null;
+  const b=D.b,diet=D.sp.diet,root=D.root;let base,sol,local,rotY=root.rotation.y;
+  if(diet==='high'){base={neck:.28,head:.25};applyPose(D,Object.assign({dy:0,pitch:0,jaw:0,tail:0,lie:0},base),G0);const m=mouthLocal(D);const s=(m.y+.4)/.88;prop=makeTree(s);local=new V3(m.x+s*.12,0,0);D.eat=base;}
+  else if(diet==='carn'){const len=clamp(D.sp.len*.45,.5,6);prop=makePrey(len);base={pitch:D.biped?-.32:-.08,dy:-.1*b.H,head:-.75};sol=solveEat(D,prop.userData.top*.95,base);
+    rotY+=Math.PI/2;local=new V3(sol.m.x+PREY_B.hT[1]*len/10*.4,0,prop.userData.axis);D.eat=Object.assign({},base,{neck:sol.neck});}
+  else if(diet==='fish'){prop=makeFish(2.2);base={pitch:-.3,dy:-.1*b.H,head:-.8};sol=solveEat(D,prop.userData.top,base);local=new V3(sol.m.x+.1,0,0);rotY+=.4;D.eat=Object.assign({},base,{neck:sol.neck});}
+  else{const hf=clamp(b.H*.32,.3,1.1);prop=makeFerns(hf);base=D.biped?{pitch:-.3,dy:-.08*b.H,head:-1.0}:{pitch:-.06,dy:-.04*b.H,head:-.9};sol=solveEat(D,hf*.7,base);local=new V3(sol.m.x,0,0);D.eat=Object.assign({},base,{neck:sol.neck});}
+  root.updateMatrixWorld(true);const w=root.localToWorld(local.clone());prop.position.set(w.x,0,w.z);prop.rotation.y=rotY;scene.add(prop);
+  prop.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
+}
+function targets(){const b=D.b,t={dy:0,pitch:0,neck:0,head:0,jaw:0,tail:0,lie:0,v:0};
+  if(state==='walk')t.v=b.speed[0];
+  else if(state==='run'){t.v=b.speed[1];t.pitch=D.biped?-.06:-.02;t.neck=-.12;t.head=.05;t.tail=.05;}
+  else if(state==='rest'){t.dy=D.restY-b.H;t.pitch=-b.pitch;t.neck=b.restNeck!=null?b.restNeck:-.55;t.head=.12;t.lie=1;t.tail=-.25;}
+  else if(state==='eat'&&D.eat)Object.assign(t,D.eat);
+  return t;}
+function setState(s){if(!D)return;state=s;
+  document.querySelectorAll('[data-s]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.s===s)));
+  if(s==='eat')enterEat();}
+
+/* ============================ camera & selection ============================ */
+let tween=null,lastFocus=new V3();
+function focusWorld(){return D.root.localToWorld(D.focusLocal.clone());}
+function frameCamera(instant){
+  const size=D.box.getSize(new V3()),c=D.box.getCenter(new V3());
+  D.focusLocal=new V3(c.x,size.y*(size.y>size.x*.5?.52:.45),0);
+  let dist=Math.max(size.x*1.22,size.y*1.95,size.z*1.8)+1.2;dist*=Math.max(1,1.3/camera.aspect);
+  const dir=new V3(.62,.26,1).normalize();D.homeOff=dir.multiplyScalar(dist);
+  const S=Math.max(size.x,size.y)*.62+2;const sc=sun.shadow.camera;sc.left=sc.bottom=-S;sc.right=sc.top=S;sc.near=1;sc.far=S*6;sc.updateProjectionMatrix();D.shadowS=S;
+  scene.fog.near=Math.max(40,dist*2.5);scene.fog.far=scene.fog.near+420;
+  controls.maxDistance=dist*4;controls.minDistance=Math.max(.35,dist*.1);
+  const fw=focusWorld(),pos=fw.clone().add(D.homeOff);lastFocus.copy(fw);
+  if(instant){camera.position.copy(pos);controls.target.copy(fw);tween=null;}
+  else tween={t0:performance.now(),dur:reduce?1:1100,fp:camera.position.clone(),ft:controls.target.clone(),tp:pos,tt:fw};
+}
+controls.addEventListener('start',()=>{tween=null;});
+let building=false,firstFrame=true;
+function select(i){
+  if(building)return;endTour(true);idx=(i+SP.length)%SP.length;const d=SP[idx];
+  try{localStorage.setItem('dino-id',d.id);}catch(e){}
+  renderPanel(d);tl.querySelectorAll('.mk').forEach((m,k)=>m.classList.toggle('on',k===idx));
+  $('#busyT').textContent=`正在生成「${d.zh}」模型…`;$('#busy').hidden=false;building=true;
+  setTimeout(()=>{
+    try{
+      if(D){disposeDino(D);D=null;}disposeObj(prop);prop=null;
+      D=buildDino(d);scene.add(D.root);
+      const b=D.box;human.position.set(b.max.x+.4+d.len*.02,0,-(b.max.z+.5));human.rotation.y=.4;
+      if(grid){scene.remove(grid);grid.geometry.dispose();grid.material.dispose();}
+      const n=Math.max(6,Math.ceil((b.max.x-b.min.x)*1.4));grid=new THREE.GridHelper(n*2,n*2,0x333333,0x333333);grid.material.transparent=true;grid.material.opacity=.14;grid.material.depthWrite=false;grid.position.y=.015;grid.visible=showHuman;scene.add(grid);
+      applyPose(D,D.c,D.g);frameCamera(firstFrame);firstFrame=false;
+      setState(state);
+    }catch(err){console.error(err);$('#busyT').textContent='模型生成失敗：'+err.message;building=false;return;}
+    building=false;$('#busy').hidden=true;
+  },40);
+}
+/* ---------- narration ---------- */
+const PART={head:'頭部',jaw:'口部',neck:'頸部',body:'軀幹',tail:'尾巴',leg:'後肢',fleg:'前肢',arm:'前肢',claw:'鐮刀爪',thumb:'拇指尖刺',plate:'背部骨板',spikes:'尾端骨刺',sail:'背帆',frill:'頸盾',horn:'額角',crest:'頭冠',dome:'頭頂圓頂',club:'尾錘',armor:'骨質鱗甲'};
+const synth=window.speechSynthesis||null;let voice=null,voices=[],voiceOn=!!synth,vRate=1,vPitch=1;
+const NAT=/natural|neural|online|premium|enhanced|wavenet|siri/i;
+const VNAME={HsiaoChen:'曉臻・女聲',HsiaoYu:'曉雨・女聲',YunJhe:'雲哲・男聲',Xiaoxiao:'曉曉・女聲',Xiaoyi:'曉伊・女聲',Yunxi:'雲希・男聲',Yunyang:'雲揚・男聲・播報',Yunjian:'雲健・男聲',Yunxia:'雲夏・童聲',Xiaobei:'曉北・東北腔',Xiaoni:'曉妮・陝西腔',HiuGaai:'曉佳・粵語女聲',HiuMaan:'曉曼・粵語女聲',WanLung:'雲龍・粵語男聲',Yating:'雅婷・女聲',Hanhan:'涵涵・女聲',Zhiwei:'志瑋・男聲',Huihui:'慧慧・女聲',Kangkang:'康康・男聲',Yaoyao:'瑤瑤・女聲',Tracy:'Tracy・粵語',Danny:'Danny・粵語',Meijia:'美佳・女聲',Tingting:'婷婷・女聲',Sinji:'善怡・粵語'};
+const lz=l=>/TW/i.test(l)?'台灣':/HK|yue/i.test(l)?'香港':/CN/i.test(l)?'中國':l;
+function vLabel(v){const key=Object.keys(VNAME).find(k=>v.name.includes(k));let nm=key?VNAME[key]:v.name.replace(/^Microsoft\s+/,'').replace(/\s*-\s*Chinese.*$/i,'').replace(/\((Natural|Neural)\)/i,'').replace(/Online/i,'').trim();
+  if(/^Google/i.test(v.name))nm='Google '+(/HK|yue/i.test(v.lang)?'粵語':'國語');return `${NAT.test(v.name)?'★ ':''}${nm}（${lz(v.lang)}${NAT.test(v.name)?'・自然語音':''}）`;}
+const vScore=v=>(NAT.test(v.name)?100:0)+(/TW/i.test(v.lang)?30:/CN/i.test(v.lang)?15:/HK|yue/i.test(v.lang)?5:0)+(/Google/i.test(v.name)?8:0)+(v.localService?0:2);
+const ls={get:k=>{try{return localStorage.getItem(k);}catch(e){return null;}},set:(k,x)=>{try{localStorage.setItem(k,x);}catch(e){}}};
+function fillVoices(){if(!synth)return;voices=synth.getVoices().filter(v=>/^(zh|cmn|yue)/i.test(v.lang)).sort((a,b)=>vScore(b)-vScore(a));
+  const sel=$('#vSel'),saved=ls.get('dino-voice');
+  if(!voices.length){sel.innerHTML='<option value="">此裝置沒有中文語音</option>';voice=null;}
+  else{sel.innerHTML='<option value="">自動：選最自然的聲音</option>'+voices.map((v,i)=>`<option value="${i}">${vLabel(v)}</option>`).join('');
+    const k=saved?voices.findIndex(v=>v.name===saved):-1;sel.value=k>=0?String(k):'';voice=k>=0?voices[k]:voices[0];}
+  const nat=voices.some(v=>NAT.test(v.name)),cv=$('#coV');
+  cv.hidden=nat;cv.textContent=voices.length?'想要更自然的聲音：用 Microsoft Edge 開啟本頁，選單會出現「曉臻、曉雨、雲哲」等★自然語音；Chrome 則有 Google 國語。':'這個瀏覽器沒有中文語音，解說會以字幕播放。用 Microsoft Edge 或 Chrome 開啟可聽到配音。';}
+if(synth){fillVoices();synth.addEventListener&&synth.addEventListener('voiceschanged',fillVoices);setTimeout(fillVoices,800);
+  vRate=+(ls.get('dino-rate')||1);vPitch=+(ls.get('dino-pitch')||1);voiceOn=ls.get('dino-von')!=='0';$('#vRate').value=vRate;$('#vPitch').value=vPitch;$('#vOn').checked=voiceOn;}
+else{['vSel','vRate','vPitch','vTry','vOn'].forEach(i=>$('#'+i).disabled=true);$('#vSel').innerHTML='<option>此瀏覽器不支援語音</option>';$('#vOn').checked=false;voiceOn=false;$('#coV').hidden=false;$('#coV').textContent='這個瀏覽器不支援語音合成，解說會以字幕播放。';}
+$('#vSel').onchange=e=>{const i=e.target.value;voice=i===''?voices[0]||null:voices[+i];ls.set('dino-voice',i===''?'':voice.name);};
+$('#vRate').oninput=e=>{vRate=+e.target.value;ls.set('dino-rate',vRate);};
+$('#vPitch').oninput=e=>{vPitch=+e.target.value;ls.set('dino-pitch',vPitch);};
+$('#vOn').onchange=e=>{voiceOn=e.target.checked;ls.set('dino-von',voiceOn?'1':'0');if(!voiceOn&&synth)synth.cancel();};
+$('#vTry').onclick=()=>{if(!synth||tour)return;synth.cancel();const d=SP[idx];sayChunks(`你好，我是恐龍館的解說員。接下來帶你認識${d.zh}。`,()=>{});};
+function sayChunks(text,onEnd,tk){const parts=spk(text).split(/(?<=[。！？；])/).map(x=>x.trim()).filter(Boolean);let n=0;
+  parts.forEach((pt,i)=>{const u=new SpeechSynthesisUtterance(pt);if(voice){u.voice=voice;u.lang=voice.lang;}else u.lang='zh-TW';u.rate=vRate;u.pitch=vPitch;
+    u.onend=u.onerror=()=>{if(++n===parts.length)onEnd();};synth.speak(u);});if(!parts.length)onEnd();}
+const spk=t=>t.replace(/(\d)\s*[–-]\s*(\d)/g,'$1到$2').replace(/(\d)\s*km\/h/g,'$1公里每小時').replace(/(\d)\s*cm\b/g,'$1公分').replace(/(\d)\s*kg\b/g,'$1公斤').replace(/(\d)\s*m\b/g,'$1公尺').replace(/(\d)\s*t\b/g,'$1公噸').replace(/°/g,'度').replace(/ · /g,'，').replace(/[「」]/g,'');
+let spTimer=0,spToken=0;
+function stopSpeech(){spToken++;clearTimeout(spTimer);if(synth)synth.cancel();$('#narr').classList.remove('speaking');}
+function speak(text,done){stopSpeech();const tk=spToken,fin=()=>{if(tk!==spToken)return;spToken++;clearTimeout(spTimer);$('#narr').classList.remove('speaking');done();};
+  if(synth&&voiceOn){$('#narr').classList.add('speaking');sayChunks(text,fin);
+    const guard=()=>{if(tk!==spToken)return;if(synth.speaking||synth.pending)spTimer=setTimeout(guard,1500);else fin();};spTimer=setTimeout(guard,text.length*260/vRate+3000);}
+  else spTimer=setTimeout(fin,text.length*170+2600);}
+function buildSteps(){const d=SP[idx],st=[{n:'簡介',title:d.zh,text:`${d.zh}，生活在${d.when}。${d.desc}`,anchor:null}];
+  d.facts.forEach(([a,t],j)=>st.push({n:String(j+1),j,title:a==='jaw'&&!d.b.head.teeth?'口部與喙':a==='jaw'?'顎部與牙齒':(PART[a]||'構造'),text:t,anchor:D.A[a]||D.A.body,jaw:a==='jaw'}));return st;}
+function startTour(from,single){if(!D||building)return;const steps=buildSteps();
+  tour={steps:single!=null?[steps[single+1]]:steps,i:from||0,single:single!=null,prevState:state};
+  controls.autoRotate=false;$('#bRot').setAttribute('aria-pressed','false');
+  $('#bTour').textContent='■ 停止解說';$('#nctl').hidden=false;$('#coX').hidden=false;playStep();}
+function playFact(j){startTour(0,j);}
+function playStep(){const st=tour.steps[tour.i];
+  $('#coN').textContent=st.n;$('#coT').textContent=st.title;$('#coX').textContent=st.text;
+  $('#coP').textContent=tour.single?'':`${tour.i+1} / ${tour.steps.length}`;$('#tPrev').hidden=tour.single;$('#tNext').hidden=tour.single;
+  panel.querySelectorAll('.facts button').forEach((b,k)=>b.classList.toggle('on',k===st.j));
+  $('#lead').style.display=st.anchor?'':'none';$('#lab').hidden=!st.anchor;if(st.anchor)$('#lab').innerHTML=`<i>${st.n}</i>${st.title}`;
+  if(st.anchor){const p=st.anchor.getWorldPosition(new V3()),size=D.box.getSize(new V3()),dist=clamp(Math.max(size.x,size.y)*.6,1.4,16);
+    const dir=new V3(.42,.28,1).normalize().applyQuaternion(D.root.quaternion);
+    tween={t0:performance.now(),dur:reduce?1:1300,fp:camera.position.clone(),ft:controls.target.clone(),tp:p.clone().addScaledVector(dir,dist),tt:p};}
+  else{const fw=focusWorld();tween={t0:performance.now(),dur:reduce?1:1000,fp:camera.position.clone(),ft:controls.target.clone(),tp:fw.clone().add(D.homeOff),tt:fw};}
+  speak((st.anchor?st.title+'。':'')+st.text,()=>{if(!tour)return;tour.timer=setTimeout(()=>{if(!tour)return;if(tour.single||tour.i>=tour.steps.length-1)endTour();else{tour.i++;playStep();}},700);});}
+function endTour(silent){if(!tour)return;clearTimeout(tour.timer);stopSpeech();tour=null;$('#nctl').hidden=true;$('#coX').hidden=true;$('#lab').hidden=true;$('#coN').textContent='—';$('#coT').textContent='逐段講解這隻恐龍的構造';$('#coP').textContent='';$('#lead').style.display='none';$('#bTour').textContent='▶ 語音解說';
+  panel.querySelectorAll('.facts button').forEach(b=>b.classList.remove('on'));
+  if(!silent&&D){const fw=focusWorld();tween={t0:performance.now(),dur:reduce?1:900,fp:camera.position.clone(),ft:controls.target.clone(),tp:fw.clone().add(D.homeOff),tt:fw};}}
+$('#bTour').onclick=()=>{if(tour)endTour();else startTour();};
+$('#tStop').onclick=()=>endTour();
+$('#tNext').onclick=()=>{if(!tour)return;clearTimeout(tour.timer);if(tour.i<tour.steps.length-1){tour.i++;playStep();}else endTour();};
+$('#tPrev').onclick=()=>{if(!tour)return;clearTimeout(tour.timer);tour.i=Math.max(0,tour.i-1);playStep();};
+$('#prev').onclick=()=>select(idx-1);$('#next').onclick=()=>select(idx+1);
+document.querySelectorAll('[data-s]').forEach(el=>el.onclick=()=>setState(el.dataset.s));
+/* ---------- synthesized calls (Web Audio) ---------- */
+// w:wave f:[start,peak,end]Hz g:growl depth gr:growl rate d:distortion nz/nf:breath noise fm:formants[freq,Q,gain] sub:rumble vib:[rate,depth] a/r:attack/release n:calls gap mouth:jaw open lift:head raise
+const ROAR={
+  trex:{n:1,dur:2.5,f:[68,92,40],w:'sawtooth',g:.85,gr:34,d:40,nz:.45,nf:600,fm:[[165,3.5,1],[460,5,.7],[1050,6,.3]],sub:1,vib:[5,5],a:.3,r:1,mouth:1,lift:.42,shake:1},
+  allosaurus:{n:1,dur:1.9,f:[95,130,58],w:'sawtooth',g:.75,gr:44,d:30,nz:.5,nf:900,fm:[[230,4,1],[640,5,.6],[1500,6,.3]],sub:.6,vib:[6,6],a:.2,r:.8,mouth:1,lift:.38,shake:1},
+  spinosaurus:{n:1,dur:2.1,f:[82,108,52],w:'sawtooth',g:.6,gr:30,d:25,nz:.75,nf:1400,fm:[[200,4,1],[560,5,.6],[1300,5,.4]],sub:.7,vib:[4,4],a:.3,r:.9,mouth:1,lift:.3,shake:1},
+  coelophysis:{n:3,gap:.1,dur:.34,f:[720,950,520],w:'triangle',g:.2,gr:60,d:6,nz:.4,nf:3200,fm:[[1200,3,1],[2600,4,.5]],sub:0,vib:[9,30],a:.03,r:.15,mouth:.9,lift:.15},
+  velociraptor:{n:2,gap:.12,dur:.55,f:[950,1450,620],w:'triangle',g:.3,gr:70,d:8,nz:.6,nf:4200,fm:[[1500,3,1],[3200,4,.5]],sub:0,vib:[28,160],a:.03,r:.25,mouth:.9,lift:.18},
+  gallimimus:{n:3,gap:.14,dur:.3,f:[420,540,380],w:'square',g:.1,gr:40,d:4,nz:.15,nf:2000,fm:[[900,6,1],[1850,7,.5]],sub:0,vib:[7,10],a:.02,r:.12,mouth:.8,lift:.2},
+  brachiosaurus:{n:1,dur:3.6,f:[48,58,34],w:'sawtooth',g:.3,gr:11,d:10,nz:.2,nf:260,fm:[[110,6,1],[250,6,.6],[520,6,.25]],sub:1,vib:[3,2],a:.9,r:1.5,mouth:.22,lift:.12},
+  diplodocus:{n:2,gap:.35,dur:2.2,f:[52,60,38],w:'sawtooth',g:.28,gr:10,d:10,nz:.2,nf:240,fm:[[120,6,1],[270,6,.55],[540,6,.2]],sub:1,vib:[3,2],a:.6,r:1,mouth:.2,lift:.1},
+  parasaurolophus:{n:1,dur:2.8,f:[108,118,96],w:'sawtooth',g:.05,gr:20,d:3,nz:.08,nf:500,fm:[[210,12,1.2],[420,10,.6],[630,9,.3],[840,9,.15]],sub:.4,vib:[4.5,2],a:.35,r:1,mouth:.35,lift:.3},
+  iguanodon:{n:1,dur:1.6,f:[120,145,78],w:'sawtooth',g:.4,gr:26,d:14,nz:.3,nf:700,fm:[[300,5,1],[800,5,.5]],sub:.4,vib:[5,4],a:.2,r:.6,mouth:.7,lift:.3},
+  plateosaurus:{n:1,dur:1.4,f:[150,172,108],w:'sawtooth',g:.25,gr:24,d:10,nz:.25,nf:900,fm:[[340,6,1],[900,6,.45]],sub:.2,vib:[5,4],a:.15,r:.6,mouth:.7,lift:.3},
+  triceratops:{n:2,gap:.25,dur:1.1,f:[88,102,60],w:'sawtooth',g:.6,gr:24,d:22,nz:.35,nf:500,fm:[[220,4,1],[600,5,.5]],sub:.7,vib:[4,4],a:.15,r:.5,mouth:.55,lift:.2},
+  ankylosaurus:{n:3,gap:.18,dur:.45,f:[72,82,55],w:'sawtooth',g:.7,gr:19,d:25,nz:.45,nf:380,fm:[[180,4,1],[480,5,.5]],sub:.8,vib:[3,3],a:.05,r:.2,mouth:.4,lift:.12},
+  stegosaurus:{n:1,dur:1.9,f:[78,86,54],w:'sawtooth',g:.35,gr:15,d:12,nz:.25,nf:400,fm:[[190,5,1],[500,5,.45]],sub:.7,vib:[3,3],a:.4,r:.8,mouth:.45,lift:.15},
+  pachycephalosaurus:{n:2,gap:.15,dur:.5,f:[200,245,150],w:'square',g:.5,gr:30,d:12,nz:.4,nf:1300,fm:[[500,5,1],[1300,5,.4]],sub:.2,vib:[6,5],a:.04,r:.2,mouth:.6,lift:.2}
+};
+let AC=null,master=null,rev=null,nbuf=null;
+function audio(){
+  if(!AC){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;AC=new C();
+    const comp=AC.createDynamicsCompressor();comp.threshold.value=-14;comp.ratio.value=4;comp.connect(AC.destination);
+    master=AC.createGain();master.gain.value=.8;master.connect(comp);
+    rev=AC.createConvolver();const n=AC.sampleRate*2.4|0,ir=AC.createBuffer(2,n,AC.sampleRate);for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,3.2);}
+    rev.buffer=ir;const rg=AC.createGain();rg.gain.value=.28;rev.connect(rg);rg.connect(comp);
+    nbuf=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate);const nd=nbuf.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;}
+  if(AC.state==='suspended')AC.resume();return AC;}
+const distCurve=k=>{const n=1024,c=new Float32Array(n);for(let i=0;i<n;i++){const x=i/(n-1)*2-1;c[i]=(1+k)*x/(1+k*Math.abs(x));}return c;};
+function callVoice(ac,t0,p,i){
+  const dur=p.dur*(i%2?.88:1),T=t0+dur,pk=t0+dur*.3,A=Math.min(p.a,dur*.4),Rl=Math.min(p.r,dur*.6),stop=T+.15,ramp=(prm,a,b,c)=>{prm.setValueAtTime(a,t0);prm.linearRampToValueAtTime(b,pk);prm.exponentialRampToValueAtTime(Math.max(c,1),T);};
+  const src=ac.createGain();src.gain.value=.5;
+  [0,1].forEach(k=>{const o=ac.createOscillator();o.type=p.w;o.detune.value=k?11:-7;ramp(o.frequency,p.f[0],p.f[1],p.f[2]);
+    const l=ac.createOscillator(),lg=ac.createGain();l.frequency.value=p.vib[0]*(k?1.13:1);lg.gain.value=p.vib[1];l.connect(lg);lg.connect(o.frequency);l.start(t0);l.stop(stop);o.connect(src);o.start(t0);o.stop(stop);});
+  const sh=ac.createWaveShaper();sh.curve=distCurve(p.d);src.connect(sh);
+  const am=ac.createGain();am.gain.value=1-p.g*.5;const al=ac.createOscillator(),ag=ac.createGain();al.frequency.setValueAtTime(p.gr,t0);al.frequency.linearRampToValueAtTime(p.gr*.7,T);ag.gain.value=p.g*.5;al.connect(ag);ag.connect(am.gain);al.start(t0);al.stop(stop);sh.connect(am);
+  const ns=ac.createBufferSource();ns.buffer=nbuf;ns.loop=true;const nb=ac.createBiquadFilter();nb.type='bandpass';nb.frequency.value=p.nf;nb.Q.value=.7;const ng=ac.createGain();ng.gain.value=p.nz;ns.connect(nb);nb.connect(ng);ng.connect(am);ns.start(t0,Math.random());ns.stop(stop);
+  const mix=ac.createGain();
+  p.fm.forEach(([f,q,g])=>{const b=ac.createBiquadFilter();b.type='bandpass';b.frequency.value=f;b.Q.value=q;const gg=ac.createGain();gg.gain.value=g*Math.sqrt(q)*.9;am.connect(b);b.connect(gg);gg.connect(mix);});
+  if(p.sub){const so=ac.createOscillator();ramp(so.frequency,p.f[0]*.5,p.f[1]*.5,p.f[2]*.5);const sg=ac.createGain();sg.gain.value=p.sub*.55;so.connect(sg);sg.connect(mix);so.start(t0);so.stop(stop);}
+  const out=ac.createGain();out.gain.setValueAtTime(0,t0);out.gain.linearRampToValueAtTime(1,t0+A);out.gain.setValueAtTime(1,Math.max(t0+A,T-Rl));out.gain.linearRampToValueAtTime(0,T);
+  mix.connect(out);out.connect(master);out.connect(rev);}
+function doRoar(){if(!D)return;const p=ROAR[D.sp.id]||ROAR.trex,calls=[];
+  for(let i=0;i<p.n;i++)calls.push([i*(p.dur+(p.gap||.15)),p.dur*(i%2?.88:1)]);
+  const total=calls[calls.length-1][0]+calls[calls.length-1][1]+.35;
+  roar={t0:performance.now()/1000+.03,calls,total,mouth:p.mouth,lift:p.lift,shake:p.shake};
+  try{const ac=audio();if(ac){const t0=ac.currentTime+.03;calls.forEach(([st],i)=>callVoice(ac,t0+st,p,i));}}catch(e){console.warn(e);}}
+$('#bRoar').onclick=doRoar;
+$('#bRot').onclick=e=>{controls.autoRotate=!controls.autoRotate;e.currentTarget.setAttribute('aria-pressed',String(controls.autoRotate));};
+$('#bHuman').onclick=e=>{showHuman=!showHuman;e.currentTarget.setAttribute('aria-pressed',String(showHuman));human.visible=showHuman;if(grid)grid.visible=showHuman;};
+$('#bReset').onclick=()=>{if(!D)return;const fw=focusWorld();tween={t0:performance.now(),dur:reduce?1:800,fp:camera.position.clone(),ft:controls.target.clone(),tp:fw.clone().add(D.homeOff),tt:fw};};
+addEventListener('keydown',e=>{if(e.target.closest&&e.target.closest('input,textarea'))return;if(e.key==='Escape'){endTour();return;}
+  if(e.key==='ArrowRight')select(idx+1);else if(e.key==='ArrowLeft')select(idx-1);
+  else{const k=['1','2','3','4','5'].indexOf(e.key);if(k>=0)setState(['stand','walk','run','rest','eat'][k]);}});
+function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
+new ResizeObserver(resize).observe(stage);resize();
+
+/* ============================ loop ============================ */
+const v=new V3(),ease=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+let last=performance.now(),capT=0;
+function place(el,obj,w,h,isTag){obj.getWorldPosition(v);v.project(camera);const vis=v.z<1&&v.x>-1.05&&v.x<1.05&&v.y>-1.05&&v.y<1.05;
+  if(el.hidden===vis)el.hidden=!vis;if(vis)el.style.transform=`translate(${(v.x*.5+.5)*w}px,${(-v.y*.5+.5)*h}px)`+(isTag?' translate(-50%,-100%)':'');}
+function drawLead(w,h){const st=tour&&tour.steps[tour.i];if(!st||!st.anchor)return;
+  st.anchor.getWorldPosition(v);v.project(camera);const on=v.z<1,ax=(v.x*.5+.5)*w,ay=(-v.y*.5+.5)*h,lb=$('#lab'),lw=lb.offsetWidth,lh=lb.offsetHeight;
+  const dx=ax>w/2?1:-1,bx=clamp(ax+dx*54-(dx<0?lw:0),10,w-lw-10),by=clamp(ay-70,52,h-lh-60);
+  lb.style.transform=`translate(${bx}px,${by}px)`;lb.style.opacity=on?1:0;
+  const L=$('#leadL');L.setAttribute('x1',dx>0?bx:bx+lw);L.setAttribute('y1',by+lh/2);L.setAttribute('x2',ax);L.setAttribute('y2',ay);
+  $('#leadR').setAttribute('cx',ax);$('#leadR').setAttribute('cy',ay);$('#leadD').setAttribute('cx',ax);$('#leadD').setAttribute('cy',ay);$('#lead').style.opacity=on?1:0;}
+function loop(now){
+  requestAnimationFrame(loop);
+  const dt=Math.min(.05,(now-last)/1000);last=now;update(dt,now/1000,now);render();
+}
+function update(dt,t,now){
+  if(D&&!building){
+    const T=targets(),c=D.c;
+    for(const k in T){const rate=k==='v'?1.3:k==='lie'?1.2:2.2;c[k]+=(T[k]-c[k])*Math.min(1,dt*rate);}
+    stepGait(D,D.g,c.v,dt,t);
+    D.theta+=c.v/D.Rp*dt;D.root.position.set(Math.sin(D.theta)*D.Rp,0,D.Rp-Math.cos(D.theta)*D.Rp);D.root.rotation.y=-D.theta;
+    const cc=Object.assign({},c),mk=reduce?.3:1,look=(1-clamp(c.v/(D.b.speed[0]*.5),0,1))*(1-c.lie*.6)*(state==='eat'?.2:1)*(tour?.25:1);
+    cc.yaw=Math.sin(t*.37)*.22*look*mk;cc.hyaw=Math.sin(t*.53+1)*.14*look*mk;
+    if(state==='eat'&&D.eat){const settle=smooth(.5,1,1-Math.min(1,Math.abs(c.neck-D.eat.neck)*3));
+      if(D.sp.diet==='carn'||D.sp.diet==='fish'){const cy=(t%2.8)/2.8,pull=Math.sin(Math.PI*clamp(cy/.35,0,1));
+        cc.neck+=.22*pull*settle;cc.head+=.35*pull*settle;cc.hyaw+=.22*Math.sin(t*15)*pull*settle*mk;cc.jaw+=(cy>.75?smooth(.75,.85,cy)*(1-smooth(.93,1,cy)):.12*pull)*settle;}
+      else{const cy=(t%3.4)/3.4,tug=Math.sin(Math.PI*clamp((cy-.7)/.3,0,1));cc.jaw+=.22*(.5+.5*Math.sin(t*8))*settle;cc.neck+=(.03*Math.sin(t*1.3)+.1*tug)*settle;cc.head+=(.07*Math.sin(t*2.1)+.12*tug)*settle;}}
+    if(roar){const k=(t-roar.t0)/roar.total;if(k>=1)roar=null;else if(k>0){const e=smooth(0,.12,k)*(1-smooth(.82,1,k));let jw=0;roar.calls.forEach(([st,d])=>{const q=(t-roar.t0-st)/d;if(q>0&&q<1.15)jw=Math.max(jw,Math.sin(Math.PI*clamp(q*1.1,0,1)));});
+      cc.jaw=Math.max(cc.jaw,jw*roar.mouth);cc.head+=roar.lift*e;cc.neck+=roar.lift*.5*e;cc.hyaw*=1-e;if(roar.shake)cc.hyaw+=Math.sin(t*8)*.05*jw;}}
+    if(tour&&tour.steps[tour.i].jaw)cc.jaw=Math.max(cc.jaw,.55);
+    applyPose(D,cc,D.g);
+    const fw=focusWorld(),dl=fw.clone().sub(lastFocus);lastFocus.copy(fw);
+    camera.position.add(dl);controls.target.add(dl);if(tween){tween.fp.add(dl);tween.ft.add(dl);tween.tp.add(dl);tween.tt.add(dl);}
+    sun.target.position.copy(fw);sun.position.copy(fw).addScaledVector(theme.sun.clone().normalize(),D.shadowS*2.5);rim.position.set(fw.x-theme.sun.x*40,fw.y+18,fw.z-theme.sun.z*40);
+    if(now-capT>200){capT=now;$('#cap').innerHTML=`<b>${idx+1} / ${SP.length}</b> · ${D.sp.zh} · ${STATE_ZH[state]}${c.v>.05?` · ${kmh(c.v)} km/h`:''}`;}
+  }
+  if(tween){const k=Math.min(1,(now-tween.t0)/tween.dur),e=ease(k);camera.position.lerpVectors(tween.fp,tween.tp,e);controls.target.lerpVectors(tween.ft,tween.tt,e);if(k>=1)tween=null;}
+}
+function render(){
+  controls.update();sky.position.copy(camera.position);
+  renderer.render(scene,camera);
+  const w=stage.clientWidth,h=stage.clientHeight;
+  drawLead(w,h);
+  if(showHuman)place(tagEl,human.userData.label,w,h,true);else tagEl.hidden=true;
+}
+select(idx);
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
