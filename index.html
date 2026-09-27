@@ -967,16 +967,25 @@ const canG=canopyGeo(),canMat=new THREE.MeshStandardMaterial({color:col('#3E5A31
   rk.castShadow=rk.receiveShadow=true;scene.add(rk);}
 
 // human scale figure
-function buildHuman(){const g=new THREE.Group(),m=stdMat('#A3A7A9',{roughness:.55});
-  for(const s of [1,-1]){const l=new THREE.Mesh(new THREE.CylinderGeometry(.075,.055,.88,14),m);l.position.set(0,.46,s*.1);g.add(l);
-    const f=new THREE.Mesh(new THREE.BoxGeometry(.24,.06,.09),m);f.position.set(.06,.03,s*.1);g.add(f);
-    const a=new THREE.Mesh(new THREE.CylinderGeometry(.045,.035,.64,12),m);a.position.set(0,1.18,s*.24);a.rotation.x=s*.06;g.add(a);}
+function buildHuman(){const g=new THREE.Group(),m=stdMat('#A3A7A9',{roughness:.55}),legs=[],arms=[];
+  for(const s of [1,-1]){const hp=new THREE.Group();hp.position.set(0,.9,s*.1);g.add(hp);legs.push(hp);
+    const l=new THREE.Mesh(new THREE.CylinderGeometry(.075,.055,.88,14),m);l.position.y=-.44;hp.add(l);
+    const f=new THREE.Mesh(new THREE.BoxGeometry(.24,.06,.09),m);f.position.set(.06,-.87,0);hp.add(f);
+    const sp=new THREE.Group();sp.position.set(0,1.5,s*.24);sp.rotation.x=s*.06;g.add(sp);arms.push(sp);
+    const a=new THREE.Mesh(new THREE.CylinderGeometry(.045,.035,.64,12),m);a.position.y=-.32;sp.add(a);}
   const t=new THREE.Mesh(new THREE.CylinderGeometry(.19,.14,.6,16),m);t.scale.z=.65;t.position.y=1.2;g.add(t);
   const sh=new THREE.Mesh(new THREE.SphereGeometry(.19,16,10),m);sh.scale.set(.75,.35,1.25);sh.position.y=1.48;g.add(sh);
   const n=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,.1,10),m);n.position.y=1.55;g.add(n);
   const h=new THREE.Mesh(new THREE.SphereGeometry(.105,18,14),m);h.scale.set(1,1.12,.92);h.position.y=1.66;g.add(h);
-  g.traverse(o=>{if(o.isMesh)o.castShadow=true;});const lab=new THREE.Object3D();lab.position.y=1.95;g.add(lab);g.userData.label=lab;return g;}
+  g.traverse(o=>{if(o.isMesh)o.castShadow=true;});const lab=new THREE.Object3D();lab.position.y=1.95;g.add(lab);
+  Object.assign(g.userData,{label:lab,legs,arms,off:new V3(),ph:0});return g;}
 const human=buildHuman();scene.add(human);let showHuman=true;
+// Keep the figure beside the dinosaur (offset in the dinosaur's local frame) and swing its limbs while moving.
+function followHuman(dt){const u=human.userData,v=D.c.v;D.root.updateMatrixWorld(true);human.position.copy(D.root.localToWorld(u.off.clone()));human.position.y=0;
+  const mv=clamp(v/1.5,0,1);human.rotation.y=D.root.rotation.y+.4*(1-mv);
+  u.ph+=Math.min(v,8)/1.3*Math.PI*dt;const sw=(reduce?.25:.55)*mv*Math.sin(u.ph);
+  u.legs[0].rotation.z=sw;u.legs[1].rotation.z=-sw;u.arms[0].rotation.z=-sw*.8;u.arms[1].rotation.z=sw*.8;
+  if(grid)grid.position.set(Math.round(D.root.position.x),.015,Math.round(D.root.position.z));}
 let grid=null;
 
 /* ============================ food props ============================ */
@@ -1062,7 +1071,7 @@ function select(i){
     try{
       if(D){disposeDino(D);D=null;}disposeObj(prop);prop=null;roarGL=null;
       D=nd;scene.add(D.root);
-      const b=D.box;human.position.set(b.max.x+.4+d.len*.02,0,-(b.max.z+.5));human.rotation.y=.4;
+      const b=D.box;human.userData.off.set(b.max.x+.4+d.len*.02,0,-(b.max.z+.5));followHuman(0);
       if(grid){scene.remove(grid);grid.geometry.dispose();grid.material.dispose();}
       const n=Math.max(6,Math.ceil((b.max.x-b.min.x)*1.4));grid=new THREE.GridHelper(n*2,n*2,0x333333,0x333333);grid.material.transparent=true;grid.material.opacity=.14;grid.material.depthWrite=false;grid.position.y=.015;grid.visible=showHuman;scene.add(grid);
       if(!D.gl)applyPose(D,D.c,D.g);frameCamera(firstFrame);firstFrame=false;
@@ -1270,6 +1279,7 @@ function update(dt,t,now){
       cc.jaw=Math.max(cc.jaw,jw*roar.mouth);cc.head+=roar.lift*e;cc.neck+=roar.lift*.5*e;cc.hyaw*=1-e;if(roar.shake)cc.hyaw+=Math.sin(t*8)*.05*jw;}}
     if(tour&&tour.steps[tour.i].jaw)cc.jaw=Math.max(cc.jaw,.55);
     applyPose(D,cc,D.g);}
+    followHuman(dt);
     const fw=focusWorld(),dl=fw.clone().sub(lastFocus);lastFocus.copy(fw);
     camera.position.add(dl);controls.target.add(dl);if(tween){tween.fp.add(dl);tween.ft.add(dl);tween.tp.add(dl);tween.tt.add(dl);}
     if(tour&&!tween){const st=tour.steps[tour.i];if(st.anchor){const dlt=st.anchor.getWorldPosition(new V3()).sub(controls.target).multiplyScalar(Math.min(1,dt*1.5));controls.target.add(dlt);camera.position.add(dlt);}}

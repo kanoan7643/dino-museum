@@ -24,4 +24,6 @@
 | 劍龍 | [PBR Stegasaurus (Animated)](https://sketchfab.com/3d-models/pbr-stegasaurus-animated-ec254ea1554941fe8a131f62db0faf3d) | Ferocious Industries |
 | 厚頭龍 | [PBR Pachycephalasaurus (Animated)](https://sketchfab.com/3d-models/pbr-pachycephalasaurus-animated-6eea5cee4afa4730bf75c6329a43e56d) | Ferocious Industries |
 
+其他物種可用 `SKETCHFAB_TOKEN=你的API金鑰 python tools/sketchfab_download.py` 下載候選模型到 `models/`（需 Sketchfab 帳號的 API token）。
+
 授權：[Creative Commons Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)。修改：貼圖轉為 WebP 以縮小檔案（gltf-transform）。
