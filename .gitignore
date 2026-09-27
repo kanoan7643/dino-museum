@@ -2,3 +2,4 @@
 dino-museum.html
 .raw/
 .p*.py
+__pycache__/
