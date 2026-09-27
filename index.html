@@ -228,6 +228,7 @@ dl .wide{grid-column:1/-1}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script>
 (function(){
 'use strict';
@@ -350,6 +351,22 @@ const SP=[
 const MAXLEN=25,HUMAN=1.75;
 const PREY_B=Object.assign({},SP.find(s=>s.id==='iguanodon').b,{skin:{base:'#6A5C44',belly:'#8C7F63',pat:'plain',cell:.05},feat:[]});
 const STATE_ZH={stand:'站立',walk:'走路',run:'跑步',rest:'休息',eat:'進食'};
+/* Sketchfab models (CC BY 4.0). anim: clip name | [clip, timeScale] | [introClip, loopClip]. Bones use the animal's right side, which faces the default camera. */
+const MODELS={
+  velociraptor:{f:'models/velociraptor.glb',title:'PBR Velociraptor (Animated)',by:'Ferocious Industries',url:'https://sketchfab.com/3d-models/pbr-velociraptor-animated-8f1744af7b0847a2aabe3df90be802f0',
+    anim:{stand:'Idle_01',walk:'Walk',run:'Sprint',rest:['Go to Sleep','Sleep_Loop'],eat:'Eat Prey',roar:'Roar_01'},
+    bones:{head:/^Head_/,jaw:/^Jaw_2_0/,mouth:/^Jaw_2_end_0/,neck:/^Neck_2/,body:/^Spine_2/,tail:/^Tail_6/,leg:/^LowerLeg\.R/,arm:/^LowerArm\.R/,claw:/^BigToe2\.R/},
+    note:'此模型沿用電影常見的鱗片造型；化石上的羽莖瘤顯示真正的迅猛龍長有羽毛。'},
+  stegosaurus:{f:'models/stegosaurus.glb',title:'PBR Stegasaurus (Animated)',by:'Ferocious Industries',url:'https://sketchfab.com/3d-models/pbr-stegasaurus-animated-ec254ea1554941fe8a131f62db0faf3d',
+    anim:{stand:'IdleA',walk:'Walk',run:'Run',rest:['IdleB',.6],eat:'Eat',roar:'Roar'},
+    bones:{head:/^Head_/,jaw:/^Jaw_0/,mouth:/^Jaw_end/,neck:/^Neck2/,body:/^Spine2/,plate:/^Spine2/,spikes:/^Tail7_0/,tail:/^Tail5/,leg:/^LowerLeg\.R/,fleg:/^LowerArm\.R/}},
+  pachycephalosaurus:{f:'models/pachycephalosaurus.glb',title:'PBR Pachycephalasaurus (Animated)',by:'Ferocious Industries',url:'https://sketchfab.com/3d-models/pbr-pachycephalasaurus-animated-6eea5cee4afa4730bf75c6329a43e56d',
+    anim:{stand:'IdleA',walk:'Walk',run:'Run',rest:['GoToSleep','SleepLoop'],eat:'EatLow',roar:'Roar'},
+    bones:{head:/^Head_/,dome:/^Head_/,jaw:/^BottomJaw_0/,mouth:/^BottomJaw_end/,neck:/^Neck2/,body:/^Spine2/,tail:/^Tail5/,leg:/^LowerLeg\.R/,arm:/^LowerArm\.R/}},
+  trex:{f:'models/trex.glb',title:'Animated Tyrannosaurus Rex Dinosaur Running Loop',by:'LasquetiSpice',url:'https://sketchfab.com/3d-models/animated-tyrannosaurus-rex-dinosaur-running-loop-38007d947ae74dea83988cb0b08ee053',
+    anim:{stand:'idle',walk:['run',.5],run:'run',rest:['idle',.45],eat:'bite',roar:'roar'},
+    bones:{head:/^bn_Head/,jaw:/^bn_Jaw/,mouth:/^bn_Tongue3/,neck:/^bn_Neck1/,body:/^bn_Spine1/,tail:/^bn_Tail05/,leg:/^bn_RightLeg/,arm:/^bn_RightForeArm/}}
+};
 
 const $=s=>document.querySelector(s);
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -379,7 +396,8 @@ function renderPanel(d){
     ${SP.map((o,i)=>`<button class="bar${i===idx?' on':''}" data-i="${i}"><span>${o.zh}</span><span class="trk"><span style="width:${o.len/MAXLEN*100}%"></span></span><span class="v">${o.len} m</span></button>`).join('')}
     <div class="bar ref"><span>人類</span><span class="trk"><span style="width:${HUMAN/MAXLEN*100}%"></span></span><span class="v">${HUMAN} m</span></div>
   </div></div>
-  <p class="note">體型、速度與年代皆為常見學術估計，研究間可能有差異。模型依骨骼比例程序化生成，皮膚顏色屬推測。叫聲是以鳥類與鱷魚等近親的發聲方式推想的合成音效，恐龍的真實叫聲沒有化石能保存。場景植物為蕨類、蘇鐵與南洋杉，中生代大部分時間還沒有草原。</p>`;
+  ${MODELS[d.id]?`<p class="note">3D 模型：<a href="${MODELS[d.id].url}" target="_blank" rel="noopener">${MODELS[d.id].title}</a>，作者 ${MODELS[d.id].by}，授權 CC BY 4.0。${MODELS[d.id].note||''}</p>`:''}
+  <p class="note">體型、速度與年代皆為常見學術估計，研究間可能有差異。未標示來源的模型依骨骼比例程序化生成，皮膚顏色屬推測。叫聲是以鳥類與鱷魚等近親的發聲方式推想的合成音效，恐龍的真實叫聲沒有化石能保存。場景植物為蕨類、蘇鐵與南洋杉，中生代大部分時間還沒有草原。</p>`;
   panel.querySelectorAll('.facts button').forEach(b=>b.onclick=()=>playFact(+b.dataset.f));const pt=panel.querySelector('#pTour');if(pt)pt.onclick=()=>startTour();
   panel.querySelectorAll('.bar[data-i]').forEach(b=>b.onclick=()=>select(+b.dataset.i));
 }
@@ -980,7 +998,7 @@ function disposeObj(o){if(!o)return;o.traverse(x=>{if(x.isMesh&&x.geometry!==fer
 /* ============================ state machine ============================ */
 let D=null,prop=null,roar=null,tour=null;
 const tagEl=document.createElement('div');tagEl.className='tag';tagEl.textContent='人類 1.75 m';layer.appendChild(tagEl);
-function disposeDino(x){const ms=new Set(Object.values(x.M));x.root.traverse(o=>{if(o.isMesh){o.geometry.dispose();ms.add(o.material);}});ms.forEach(m=>m.dispose());x.disp.forEach(t=>t.dispose());if(x.root.parent)x.root.parent.remove(x.root);}
+function disposeDino(x){const ms=new Set(Object.values(x.M||{}));if(x.mixer)x.mixer.stopAllAction();x.root.traverse(o=>{if(o.isMesh){o.geometry.dispose();(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>ms.add(m));}});ms.forEach(m=>{if(x.gl)for(const k in m){const v=m[k];if(v&&v.isTexture)v.dispose();}m.dispose();});x.disp=x.disp||[];x.disp.forEach(t=>t.dispose());if(x.root.parent)x.root.parent.remove(x.root);}
 function mouthLocal(X){const p=X.A.mouth.getWorldPosition(new V3());return X.root.worldToLocal(p);}
 function solveEat(X,targetY,base){const c=Object.assign({dy:0,pitch:0,neck:0,head:0,jaw:0,tail:0,lie:0,yaw:0,hyaw:0},base);
   const f=v=>{c.neck=v;applyPose(X,c,G0);return mouthLocal(X).y;};let lo=-1.8,hi=.6;
@@ -988,6 +1006,11 @@ function solveEat(X,targetY,base){const c=Object.assign({dy:0,pitch:0,neck:0,hea
   for(let i=0;i<20;i++){const mid=(lo+hi)/2;if(f(mid)>targetY)hi=mid;else lo=mid;}f((lo+hi)/2);return{neck:c.neck,m:mouthLocal(X)};}
 function enterEat(){
   if(!D)return;disposeObj(prop);prop=null;
+  if(D.gl){let local,rotY=D.root.rotation.y;const fx=D.box.max.x;
+    if(D.sp.diet==='carn'){const len=clamp(D.sp.len*.45,.5,6);prop=makePrey(len);rotY+=Math.PI/2;local=new V3(fx+PREY_B.hT[1]*len/10*.3,0,prop.userData.axis);}
+    else{const hf=clamp(D.b.H*.32,.3,1.1);prop=makeFerns(hf);local=new V3(fx*.97,0,0);}
+    D.root.updateMatrixWorld(true);const w=D.root.localToWorld(local);prop.position.set(w.x,0,w.z);prop.rotation.y=rotY;scene.add(prop);
+    prop.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});D.eat={};return;}
   const b=D.b,diet=D.sp.diet,root=D.root;let base,sol,local,rotY=root.rotation.y;
   if(diet==='high'){base={neck:.28,head:.25};applyPose(D,Object.assign({dy:0,pitch:0,jaw:0,tail:0,lie:0},base),G0);const m=mouthLocal(D);const s=(m.y+.4)/.88;prop=makeTree(s);local=new V3(m.x+s*.12,0,0);D.eat=base;}
   else if(diet==='carn'){const len=clamp(D.sp.len*.45,.5,6);prop=makePrey(len);base={pitch:D.biped?-.32:-.08,dy:-.1*b.H,head:-.75};sol=solveEat(D,prop.userData.top*.95,base);
@@ -1028,20 +1051,57 @@ function select(i){
   if(building)return;endTour(true);idx=(i+SP.length)%SP.length;const d=SP[idx];
   try{localStorage.setItem('dino-id',d.id);}catch(e){}
   renderPanel(d);tl.querySelectorAll('.mk').forEach((m,k)=>m.classList.toggle('on',k===idx));
-  $('#busyT').textContent=`正在生成「${d.zh}」模型…`;$('#busy').hidden=false;building=true;
-  setTimeout(()=>{
+  const cfg=MODELS[d.id]&&!modelFail[d.id]?MODELS[d.id]:null;
+  $('#busyT').textContent=cfg?`正在載入「${d.zh}」3D 模型…`:`正在生成「${d.zh}」模型…`;$('#busy').hidden=false;building=true;
+  const finish=nd=>{
     try{
-      if(D){disposeDino(D);D=null;}disposeObj(prop);prop=null;
-      D=buildDino(d);scene.add(D.root);
+      if(D){disposeDino(D);D=null;}disposeObj(prop);prop=null;roarGL=null;
+      D=nd;scene.add(D.root);
       const b=D.box;human.position.set(b.max.x+.4+d.len*.02,0,-(b.max.z+.5));human.rotation.y=.4;
       if(grid){scene.remove(grid);grid.geometry.dispose();grid.material.dispose();}
       const n=Math.max(6,Math.ceil((b.max.x-b.min.x)*1.4));grid=new THREE.GridHelper(n*2,n*2,0x333333,0x333333);grid.material.transparent=true;grid.material.opacity=.14;grid.material.depthWrite=false;grid.position.y=.015;grid.visible=showHuman;scene.add(grid);
-      applyPose(D,D.c,D.g);frameCamera(firstFrame);firstFrame=false;
+      if(!D.gl)applyPose(D,D.c,D.g);frameCamera(firstFrame);firstFrame=false;
       setState(state);
     }catch(err){console.error(err);$('#busyT').textContent='模型生成失敗：'+err.message;building=false;return;}
     building=false;$('#busy').hidden=true;
-  },40);
+  };
+  if(cfg)loadModelDino(d,cfg).then(finish).catch(e=>{console.warn('model load failed, using procedural model',e);modelFail[d.id]=1;$('#busyT').textContent=`正在生成「${d.zh}」模型…`;setTimeout(()=>finish(buildDino(d)),30);});
+  else setTimeout(()=>finish(buildDino(d)),40);
 }
+/* ---------- glTF models ---------- */
+const modelFail={};let roarGL=null;const gltfLoader=THREE.GLTFLoader?new THREE.GLTFLoader():null;
+function loadModelDino(d,cfg){return new Promise((res,rej)=>{if(!gltfLoader)return rej(new Error('GLTFLoader missing'));
+  gltfLoader.load(cfg.f,g=>{try{res(setupGL(d,cfg,g));}catch(e){rej(e);}},x=>{if(x.total)$('#busyT').textContent=`正在載入「${d.zh}」3D 模型… ${Math.round(x.loaded/x.total*100)}%`;},rej);});}
+function skinnedBox(obj){const box=new THREE.Box3(),v=new V3();obj.updateMatrixWorld(true);
+  obj.traverse(o=>{if(!o.isMesh)return;const p=o.geometry.attributes.position,step=Math.max(1,Math.floor(p.count/4000));
+    for(let i=0;i<p.count;i+=step){v.fromBufferAttribute(p,i);if(o.isSkinnedMesh)o.boneTransform(i,v);v.applyMatrix4(o.matrixWorld);box.expandByPoint(v);}});return box;}
+function setupGL(d,cfg,g){
+  const model=g.scene,bones={};
+  model.traverse(o=>{if(o.name&&!bones[o.name])bones[o.name]=o;if(o.isMesh){o.castShadow=true;o.receiveShadow=true;o.frustumCulled=false;}});
+  const mixer=new THREE.AnimationMixer(model),actions={};g.animations.forEach(c=>{actions[c.name]=mixer.clipAction(c);});
+  const st=typeof cfg.anim.stand==='string'?cfg.anim.stand:cfg.anim.stand[0];if(actions[st]){actions[st].play();mixer.update(0);}
+  const box=skinnedBox(model),size=box.getSize(new V3()),ctr=box.getCenter(new V3());
+  const find=re=>{for(const n in bones)if(re.test(n))return bones[n];return null;};
+  const hb=find(cfg.bones.head),hp=hb?hb.getWorldPosition(new V3()):ctr.clone(),alongX=size.x>=size.z;
+  const dir=(alongX?Math.sign(hp.x-ctr.x):Math.sign(hp.z-ctr.z))||1,rotY=alongX?(dir>0?0:Math.PI):(dir>0?Math.PI/2:-Math.PI/2),sc=d.len/(alongX?size.x:size.z);
+  const pivot=new THREE.Group();pivot.add(model);model.position.set(-ctr.x,-box.min.y,-ctr.z);pivot.rotation.y=rotY;pivot.scale.setScalar(sc);
+  const root=new THREE.Group();root.add(pivot);root.updateMatrixWorld(true);
+  const D={sp:d,b:d.b,root,gl:true,cfg,mixer,actions,curA:null,A:{},c:{v:0},Rp:Math.max(7,d.len*1.25),theta:0,disp:[],box:skinnedBox(root)};
+  for(const k in cfg.bones){const bn=find(cfg.bones[k]);if(bn){const o=new THREE.Object3D();bn.add(o);D.A[k]=o;}}
+  if(!D.A.mouth)D.A.mouth=D.A.head;if(!D.A.body){D.A.body=new THREE.Object3D();root.add(D.A.body);}
+  if(actions[st])actions[st].stop();glWant(D,cfg.anim.stand);mixer.update(0);
+  return D;}
+function glPlay(D,name,once,ts){const a=D.actions[name];if(!a)return;a.reset();a.setLoop(once?THREE.LoopOnce:THREE.LoopRepeat,Infinity);a.clampWhenFinished=!!once;a.timeScale=ts||1;a.enabled=true;a.setEffectiveWeight(1);a.play();
+  if(D.curA&&D.curA!==a)D.curA.crossFadeTo(a,.45,false);D.curA=a;}
+function glWant(D,spec){if(!spec)return;let name,ts=1,once=false,seq=null;
+  if(typeof spec==='string')name=spec;else if(typeof spec[1]==='number'){name=spec[0];ts=spec[1];}else if(spec[1]==='once'){name=spec[0];once=true;}else seq=spec;
+  if(seq){const a0=D.actions[seq[0]],a1=D.actions[seq[1]];if(!a0||!a1)return glWant(D,seq[1]||seq[0]);if(D.curA===a1)return;
+    if(D.curA===a0){if(a0.time>=a0.getClip().duration-.05)glPlay(D,seq[1]);return;}glPlay(D,seq[0],true);return;}
+  const a=D.actions[name];if(!a)return;if(D.curA===a){if(!once)a.timeScale=ts;return;}glPlay(D,name,once,ts);}
+function updateGL(dt,t){const c=D.c,b=D.b,tv=state==='walk'?b.speed[0]:state==='run'?b.speed[1]:0;c.v+=(tv-c.v)*Math.min(1,dt*1.3);
+  D.theta+=c.v/D.Rp*dt;D.root.position.set(Math.sin(D.theta)*D.Rp,0,D.Rp-Math.cos(D.theta)*D.Rp);D.root.rotation.y=-D.theta;
+  if(roarGL&&t>=roarGL.until)roarGL=null;
+  glWant(D,roarGL?[D.cfg.anim.roar,'once']:D.cfg.anim[state]);D.mixer.update(dt);}
 /* ---------- narration ---------- */
 const PART={head:'頭部',jaw:'口部',neck:'頸部',body:'軀幹',tail:'尾巴',leg:'後肢',fleg:'前肢',arm:'前肢',claw:'鐮刀爪',thumb:'拇指尖刺',plate:'背部骨板',spikes:'尾端骨刺',sail:'背帆',frill:'頸盾',horn:'額角',crest:'頭冠',dome:'頭頂圓頂',club:'尾錘',armor:'骨質鱗甲'};
 const synth=window.speechSynthesis||null;let voice=null,voices=[],voiceOn=!!synth,vRate=1,vPitch=1;
@@ -1148,7 +1208,7 @@ function callVoice(ac,t0,p,i){
 function doRoar(){if(!D)return;const p=ROAR[D.sp.id]||ROAR.trex,calls=[];
   for(let i=0;i<p.n;i++)calls.push([i*(p.dur+(p.gap||.15)),p.dur*(i%2?.88:1)]);
   const total=calls[calls.length-1][0]+calls[calls.length-1][1]+.35;
-  roar={t0:performance.now()/1000+.03,calls,total,mouth:p.mouth,lift:p.lift,shake:p.shake};
+  if(D.gl){const a=D.actions[D.cfg.anim.roar];roarGL={until:performance.now()/1000+(a?a.getClip().duration:2)};}else roar={t0:performance.now()/1000+.03,calls,total,mouth:p.mouth,lift:p.lift,shake:p.shake};
   try{const ac=audio();if(ac){const t0=ac.currentTime+.03;calls.forEach(([st],i)=>callVoice(ac,t0+st,p,i));}}catch(e){console.warn(e);}}
 $('#bRoar').onclick=doRoar;
 $('#bRot').onclick=e=>{controls.autoRotate=!controls.autoRotate;e.currentTarget.setAttribute('aria-pressed',String(controls.autoRotate));};
@@ -1177,7 +1237,9 @@ function loop(now){
 }
 function update(dt,t,now){
   if(D&&!building){
-    const T=targets(),c=D.c;
+    const c=D.c;
+    if(D.gl)updateGL(dt,t);else{
+    const T=targets();
     for(const k in T){const rate=k==='v'?1.3:k==='lie'?1.2:2.2;c[k]+=(T[k]-c[k])*Math.min(1,dt*rate);}
     stepGait(D,D.g,c.v,dt,t);
     D.theta+=c.v/D.Rp*dt;D.root.position.set(Math.sin(D.theta)*D.Rp,0,D.Rp-Math.cos(D.theta)*D.Rp);D.root.rotation.y=-D.theta;
@@ -1190,9 +1252,10 @@ function update(dt,t,now){
     if(roar){const k=(t-roar.t0)/roar.total;if(k>=1)roar=null;else if(k>0){const e=smooth(0,.12,k)*(1-smooth(.82,1,k));let jw=0;roar.calls.forEach(([st,d])=>{const q=(t-roar.t0-st)/d;if(q>0&&q<1.15)jw=Math.max(jw,Math.sin(Math.PI*clamp(q*1.1,0,1)));});
       cc.jaw=Math.max(cc.jaw,jw*roar.mouth);cc.head+=roar.lift*e;cc.neck+=roar.lift*.5*e;cc.hyaw*=1-e;if(roar.shake)cc.hyaw+=Math.sin(t*8)*.05*jw;}}
     if(tour&&tour.steps[tour.i].jaw)cc.jaw=Math.max(cc.jaw,.55);
-    applyPose(D,cc,D.g);
+    applyPose(D,cc,D.g);}
     const fw=focusWorld(),dl=fw.clone().sub(lastFocus);lastFocus.copy(fw);
     camera.position.add(dl);controls.target.add(dl);if(tween){tween.fp.add(dl);tween.ft.add(dl);tween.tp.add(dl);tween.tt.add(dl);}
+    if(tour&&!tween){const st=tour.steps[tour.i];if(st.anchor){const dlt=st.anchor.getWorldPosition(new V3()).sub(controls.target).multiplyScalar(Math.min(1,dt*1.5));controls.target.add(dlt);camera.position.add(dlt);}}
     sun.target.position.copy(fw);sun.position.copy(fw).addScaledVector(theme.sun.clone().normalize(),D.shadowS*2.5);rim.position.set(fw.x-theme.sun.x*40,fw.y+18,fw.z-theme.sun.z*40);
     if(now-capT>200){capT=now;$('#cap').innerHTML=`<b>${idx+1} / ${SP.length}</b> · ${D.sp.zh} · ${STATE_ZH[state]}${c.v>.05?` · ${kmh(c.v)} km/h`:''}`;}
   }
