@@ -1,0 +1,44 @@
+name: Download Sketchfab models
+
+# Runs tools/sketchfab_download.py on a GitHub runner and commits models/*.glb
+# back to the branch. Needs the repository secret SKETCHFAB_TOKEN.
+on:
+  workflow_dispatch:
+    inputs:
+      species:
+        description: 'Species to download, space separated (empty = all)'
+        required: false
+        default: ''
+  push:
+    branches: ['claude/**']
+    paths: ['.github/workflows/sketchfab.yml', 'tools/sketchfab_download.py']
+
+permissions:
+  contents: write
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install -g @gltf-transform/cli
+      - name: Download
+        env:
+          SKETCHFAB_TOKEN: ${{ secrets.SKETCHFAB_TOKEN }}
+        run: |
+          if [ -z "$SKETCHFAB_TOKEN" ]; then echo "::error::Repository secret SKETCHFAB_TOKEN is not set"; exit 1; fi
+          python tools/sketchfab_download.py ${{ github.event.inputs.species }}
+      - name: Commit models
+        run: |
+          git add models
+          if git diff --cached --quiet; then echo "::error::No models were downloaded"; exit 1; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "新增 Sketchfab 恐龍模型（GitHub Actions 下載）"
+          git push
