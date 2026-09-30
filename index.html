@@ -353,6 +353,33 @@ const PREY_B=Object.assign({},SP.find(s=>s.id==='iguanodon').b,{skin:{base:'#6A5
 const STATE_ZH={stand:'站立',walk:'走路',run:'跑步',rest:'休息',eat:'進食'};
 /* Sketchfab models (CC BY 4.0). anim: clip name | [clip, timeScale] | [introClip, loopClip]. Bones use the animal's right side, which faces the default camera. */
 const MODELS={
+  triceratops:{f:'models/triceratops.glb',title:'TRICERA',by:'seth the yutyrannus',url:'https://sketchfab.com/3d-models/tricera-6b0695ecb40a40dabd4f118ee4b729cd',
+    anim:{stand:'Idle',walk:'Walk',run:'Run',rest:['Idle',.45],eat:'NoseDirt',roar:'Attack'},
+    bones:{head:/^Bip01_Head/,horn:/^Bip01_Head/,frill:/^Bip01_Head/,jaw:/^BN_Mouth/,mouth:/^BN_Mouth/,neck:/^Bip01_Neck/,body:/^Bip01_Spine1/,tail:/^BN_Tail_03/,leg:/^Bip01_R_Calf/,fleg:/^Bip01_R_Forearm/}},
+  spinosaurus:{f:'models/spinosaurus.glb',title:'Spinosaurus_animation',by:'seirogan',url:'https://sketchfab.com/3d-models/spinosaurus-animation-c11709dbf9e3472f9533343f1f342564',
+    anim:{stand:['Armature|ArmatureAction',.35],walk:'Armature|ArmatureAction',run:['Armature|ArmatureAction',2],rest:['Armature|ArmatureAction',.25],eat:['Armature|ArmatureAction',.5],roar:['Armature|ArmatureAction',1.3]},
+    bones:{head:/^Bone005_/,jaw:/^Bone006_/,mouth:/^Bone006_/,neck:/^Bone003_/,body:/^Bone001_03/,sail:/^Bone001_03/,tail:/^Bone_L015_/,leg:/^Bone_R003_/,arm:/^Bone001_R002_/}},
+  allosaurus:{f:'models/allosaurus.glb',tint:'#A88560',title:'Allosaurus skin 2',by:'seth the yutyrannus',url:'https://sketchfab.com/3d-models/allosaurus-skin-2-8a0506931dec4191999423fc5d0b348c',
+    anim:{stand:['Scene',.3],walk:'Scene',run:['Scene',2],rest:['Scene',.25],eat:['Scene',.5],roar:['Scene',1.3]},
+    bones:{head:/^c_head_/,jaw:/^c_jaw_/,mouth:/^c_tongue3_/,neck:/^c_neck2_/,body:/^c_back2_/,tail:/^c_tail3_/,leg:/^r_knee_/,arm:/^r_elbow_/}},
+  parasaurolophus:{f:'models/parasaurolophus.glb',title:'parasaurolophus_from_unity',by:"dead tubby's",url:'https://sketchfab.com/3d-models/parasaurolophus-from-unity-ab7807cf205c42f08b16ee2f2fc0e32d',
+    anim:{stand:'idle',walk:'walk',run:'run',rest:['idle',.5],eat:'eat',roar:['idle',1.6]},
+    bones:{head:/^joint9_/,crest:/^joint9_/,jaw:/^joint17_/,mouth:/^joint18_/,neck:/^joint7_/,body:/^joint3_/,tail:/^joint13_/,leg:/^joint21_033/,arm:/^joint28_09/}},
+  ankylosaurus:{f:'models/ankylosaurus.glb',title:'Ankylosaurus from unity',by:"dead tubby's",url:'https://sketchfab.com/3d-models/ankylosaurus-from-unity-0c9978755f244457a566b258139affa4',
+    anim:{stand:'idle',walk:'walk',run:'run',rest:['idle',.5],eat:['idle',.8],roar:'attack2'},
+    bones:{head:/^joint22_/,jaw:/^joint24_/,mouth:/^joint24_/,neck:/^joint20_/,body:/^joint17_/,armor:/^joint16_/,tail:/^joint4_/,club:/^joint7_/,leg:/^joint10_/,fleg:/^joint14_/}},
+  brachiosaurus:{f:'models/brachiosaurus.glb',title:'Branchiosaurus',by:'kenchoo',url:'https://sketchfab.com/3d-models/branchiosaurus-cf45b96559a4468b9487a657acc3d7a3',
+    anim:{stand:['Animation',.3],walk:'Animation',run:['Animation',1.6],rest:['Animation',.25],eat:['Animation',.5],roar:['Animation',1.2]},
+    bones:{head:/^Head_/,jaw:/^Head_/,neck:/^Neck001_/,body:/^Torso_/,tail:/^Tail3_/,leg:/^BackLowLegR_/,fleg:/^FrontLowLegR_/}},
+  diplodocus:{f:'models/diplodocus.glb',title:'WWD diplodocus (animated)',by:'seth the yutyrannus',url:'https://sketchfab.com/3d-models/wwd-diplodocus-animated-b4d3a76625274284a56c4f9f872fcd2d',
+    anim:{stand:['Animation',.3],walk:'Animation',run:['Animation',1.6],rest:['Animation',.25],eat:['Animation',.5],roar:['Animation',1.2]},
+    bones:{head:/^Head_/,jaw:/^Head_/,neck:/^Neck_/,body:/^Torso_/,tail:/^Tail5002_/,leg:/^BackLowLegR_/,fleg:/^FrontLowLegR_/}},
+  iguanodon:{f:'models/iguanodon.glb',title:'Dino Hunter Deadly Shores Iguanodon',by:'SpikeDaBoi',url:'https://sketchfab.com/3d-models/dino-hunter-deadly-shores-iguanodon-bc5bf0d1284a4515ac7724fd138fd540',
+    anim:{stand:'idle',walk:'walk',run:'run',rest:'fidget_02',eat:'fidget_01',roar:'alert_start'},
+    bones:{head:/^EHead_/,jaw:/^EJaw_/,mouth:/^EJaw_/,neck:/^ENeck_02_/,body:/^EBackB_M/,tail:/^ETail3_M/,leg:/^EbackKnee_R/,fleg:/^EfrontKnee_R/,thumb:/^ERThumb_/}},
+  gallimimus:{f:'models/gallimimus.glb',title:'Dino Hunter Deadly Shores Gallimimus',by:'PaPmont',url:'https://sketchfab.com/3d-models/dino-hunter-deadly-shores-gallimimus-3e0f606c92a748cebc4ea7031afdea8c',
+    anim:{stand:'idle',walk:'walk',run:'run',rest:'fidget_02',eat:'fidget_01',roar:'alert_start'},
+    bones:{head:/^EHead_M/,jaw:/^EJaw_M/,mouth:/^EJaw_M/,neck:/^ENeck_3_M/,body:/^EBackB_M/,tail:/^ETail3_M/,leg:/^EbackKnee_R/,arm:/^EElbow_R/}},
   velociraptor:{f:'models/velociraptor.glb',title:'PBR Velociraptor (Animated)',by:'Ferocious Industries',url:'https://sketchfab.com/3d-models/pbr-velociraptor-animated-8f1744af7b0847a2aabe3df90be802f0',
     anim:{stand:'Idle_01',walk:'Walk',run:'Sprint',rest:['Go to Sleep','Sleep_Loop'],eat:'Eat Prey',roar:'Roar_01'},
     bones:{head:/^Head_/,jaw:/^Jaw_2_0/,mouth:/^Jaw_2_end_0/,neck:/^Neck_2/,body:/^Spine_2/,tail:/^Tail_6/,leg:/^LowerLeg\.?R/,arm:/^LowerArm\.?R/,claw:/^BigToe2\.?R/},
@@ -967,16 +994,25 @@ const canG=canopyGeo(),canMat=new THREE.MeshStandardMaterial({color:col('#3E5A31
   rk.castShadow=rk.receiveShadow=true;scene.add(rk);}
 
 // human scale figure
-function buildHuman(){const g=new THREE.Group(),m=stdMat('#A3A7A9',{roughness:.55});
-  for(const s of [1,-1]){const l=new THREE.Mesh(new THREE.CylinderGeometry(.075,.055,.88,14),m);l.position.set(0,.46,s*.1);g.add(l);
-    const f=new THREE.Mesh(new THREE.BoxGeometry(.24,.06,.09),m);f.position.set(.06,.03,s*.1);g.add(f);
-    const a=new THREE.Mesh(new THREE.CylinderGeometry(.045,.035,.64,12),m);a.position.set(0,1.18,s*.24);a.rotation.x=s*.06;g.add(a);}
+function buildHuman(){const g=new THREE.Group(),m=stdMat('#A3A7A9',{roughness:.55}),legs=[],arms=[];
+  for(const s of [1,-1]){const hp=new THREE.Group();hp.position.set(0,.9,s*.1);g.add(hp);legs.push(hp);
+    const l=new THREE.Mesh(new THREE.CylinderGeometry(.075,.055,.88,14),m);l.position.y=-.44;hp.add(l);
+    const f=new THREE.Mesh(new THREE.BoxGeometry(.24,.06,.09),m);f.position.set(.06,-.87,0);hp.add(f);
+    const sp=new THREE.Group();sp.position.set(0,1.5,s*.24);sp.rotation.x=s*.06;g.add(sp);arms.push(sp);
+    const a=new THREE.Mesh(new THREE.CylinderGeometry(.045,.035,.64,12),m);a.position.y=-.32;sp.add(a);}
   const t=new THREE.Mesh(new THREE.CylinderGeometry(.19,.14,.6,16),m);t.scale.z=.65;t.position.y=1.2;g.add(t);
   const sh=new THREE.Mesh(new THREE.SphereGeometry(.19,16,10),m);sh.scale.set(.75,.35,1.25);sh.position.y=1.48;g.add(sh);
   const n=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,.1,10),m);n.position.y=1.55;g.add(n);
   const h=new THREE.Mesh(new THREE.SphereGeometry(.105,18,14),m);h.scale.set(1,1.12,.92);h.position.y=1.66;g.add(h);
-  g.traverse(o=>{if(o.isMesh)o.castShadow=true;});const lab=new THREE.Object3D();lab.position.y=1.95;g.add(lab);g.userData.label=lab;return g;}
+  g.traverse(o=>{if(o.isMesh)o.castShadow=true;});const lab=new THREE.Object3D();lab.position.y=1.95;g.add(lab);
+  Object.assign(g.userData,{label:lab,legs,arms,off:new V3(),ph:0});return g;}
 const human=buildHuman();scene.add(human);let showHuman=true;
+// Keep the figure beside the dinosaur (offset in the dinosaur's local frame) and swing its limbs while moving.
+function followHuman(dt){const u=human.userData,v=D.c.v;D.root.updateMatrixWorld(true);human.position.copy(D.root.localToWorld(u.off.clone()));human.position.y=0;
+  const mv=clamp(v/1.5,0,1);human.rotation.y=D.root.rotation.y+.4*(1-mv);
+  u.ph+=Math.min(v,8)/1.3*Math.PI*dt;const sw=(reduce?.25:.55)*mv*Math.sin(u.ph);
+  u.legs[0].rotation.z=sw;u.legs[1].rotation.z=-sw;u.arms[0].rotation.z=-sw*.8;u.arms[1].rotation.z=sw*.8;
+  if(grid)grid.position.set(Math.round(D.root.position.x),.015,Math.round(D.root.position.z));}
 let grid=null;
 
 /* ============================ food props ============================ */
@@ -1062,7 +1098,7 @@ function select(i){
     try{
       if(D){disposeDino(D);D=null;}disposeObj(prop);prop=null;roarGL=null;
       D=nd;scene.add(D.root);
-      const b=D.box;human.position.set(b.max.x+.4+d.len*.02,0,-(b.max.z+.5));human.rotation.y=.4;
+      const b=D.box;human.userData.off.set(b.max.x+.4+d.len*.02,0,-(b.max.z+.5));followHuman(0);
       if(grid){scene.remove(grid);grid.geometry.dispose();grid.material.dispose();}
       const n=Math.max(6,Math.ceil((b.max.x-b.min.x)*1.4));grid=new THREE.GridHelper(n*2,n*2,0x333333,0x333333);grid.material.transparent=true;grid.material.opacity=.14;grid.material.depthWrite=false;grid.position.y=.015;grid.visible=showHuman;scene.add(grid);
       if(!D.gl)applyPose(D,D.c,D.g);frameCamera(firstFrame);firstFrame=false;
@@ -1082,7 +1118,7 @@ function skinnedBox(obj){const box=new THREE.Box3(),v=new V3();obj.updateMatrixW
     for(let i=0;i<p.count;i+=step){v.fromBufferAttribute(p,i);if(o.isSkinnedMesh)o.boneTransform(i,v);v.applyMatrix4(o.matrixWorld);box.expandByPoint(v);}});return box;}
 function setupGL(d,cfg,g){
   const model=g.scene,bones={};
-  model.traverse(o=>{if(o.name&&!bones[o.name])bones[o.name]=o;if(o.isMesh){o.castShadow=true;o.receiveShadow=true;o.frustumCulled=false;}});
+  model.traverse(o=>{if(o.name&&!bones[o.name])bones[o.name]=o;if(o.isMesh){o.castShadow=true;o.receiveShadow=true;o.frustumCulled=false;if(cfg.tint)o.material.color.set(cfg.tint);}});
   const mixer=new THREE.AnimationMixer(model),actions={};g.animations.forEach(c=>{actions[c.name]=mixer.clipAction(c);});
   const st=typeof cfg.anim.stand==='string'?cfg.anim.stand:cfg.anim.stand[0];if(actions[st]){actions[st].play();mixer.update(0);}
   const box=skinnedBox(model),size=box.getSize(new V3()),ctr=box.getCenter(new V3());
@@ -1100,7 +1136,7 @@ function setupGL(d,cfg,g){
 function glPlay(D,name,once,ts){const a=D.actions[name];if(!a)return;a.reset();a.setLoop(once?THREE.LoopOnce:THREE.LoopRepeat,Infinity);a.clampWhenFinished=!!once;a.timeScale=ts||1;a.enabled=true;a.setEffectiveWeight(1);a.play();
   if(D.curA&&D.curA!==a)D.curA.crossFadeTo(a,.45,false);D.curA=a;}
 function glWant(D,spec){if(!spec)return;let name,ts=1,once=false,seq=null;
-  if(typeof spec==='string')name=spec;else if(typeof spec[1]==='number'){name=spec[0];ts=spec[1];}else if(spec[1]==='once'){name=spec[0];once=true;}else seq=spec;
+  if(typeof spec==='string')name=spec;else if(typeof spec[1]==='number'){name=spec[0];ts=spec[1];}else if(spec[1]==='once'){name=spec[0];once=true;ts=spec[2]||1;}else seq=spec;
   if(seq){const a0=D.actions[seq[0]],a1=D.actions[seq[1]];if(!a0||!a1)return glWant(D,seq[1]||seq[0]);if(D.curA===a1)return;
     if(D.curA===a0){if(a0.time>=a0.getClip().duration-.05)glPlay(D,seq[1]);return;}glPlay(D,seq[0],true);return;}
   const a=D.actions[name];if(!a)return;if(D.curA===a){if(!once)a.timeScale=ts;return;}glPlay(D,name,once,ts);}
@@ -1115,7 +1151,7 @@ function eatOverlay(D,p,pull,shake,jaw){const er=D.er;D.root.updateMatrixWorld(t
 function updateGL(dt,t){const c=D.c,b=D.b,tv=state==='walk'?b.speed[0]:state==='run'?b.speed[1]:0;c.v+=(tv-c.v)*Math.min(1,dt*1.3);
   D.theta+=c.v/D.Rp*dt;D.root.position.set(Math.sin(D.theta)*D.Rp,0,D.Rp-Math.cos(D.theta)*D.Rp);D.root.rotation.y=-D.theta;
   if(roarGL&&t>=roarGL.until)roarGL=null;
-  glWant(D,roarGL?[D.cfg.anim.roar,'once']:D.cfg.anim[state]);if(D.er)erReset(D);D.mixer.update(dt);
+  glWant(D,roarGL?roarGL.spec:D.cfg.anim[state]);if(D.er)erReset(D);D.mixer.update(dt);
   if(D.er){D.eb+=((state==='eat'&&!roarGL?1:0)-D.eb)*Math.min(1,dt*1.4);
     if(D.eb>.002){const cy=(t%3.4)/3.4,pull=Math.sin(Math.PI*clamp((cy-.5)/.32,0,1)),bite=cy<.42?.12+.08*Math.sin(t*9):cy<.5?.55*smooth(.42,.5,cy):.55*(1-smooth(.5,.8,cy)),e=D.eb;
       eatOverlay(D,D.eatP*e,pull*e,.22*Math.sin(t*15)*pull*e,bite*e);}}}
@@ -1225,7 +1261,7 @@ function callVoice(ac,t0,p,i){
 function doRoar(){if(!D)return;const p=ROAR[D.sp.id]||ROAR.trex,calls=[];
   for(let i=0;i<p.n;i++)calls.push([i*(p.dur+(p.gap||.15)),p.dur*(i%2?.88:1)]);
   const total=calls[calls.length-1][0]+calls[calls.length-1][1]+.35;
-  if(D.gl){const a=D.actions[D.cfg.anim.roar];roarGL={until:performance.now()/1000+(a?a.getClip().duration:2)};}else roar={t0:performance.now()/1000+.03,calls,total,mouth:p.mouth,lift:p.lift,shake:p.shake};
+  if(D.gl){const r=D.cfg.anim.roar,n=Array.isArray(r)?r[0]:r,ts=Array.isArray(r)?r[1]:1,a=D.actions[n];roarGL={spec:[n,'once',ts],until:performance.now()/1000+(a?a.getClip().duration/ts:2)};}else roar={t0:performance.now()/1000+.03,calls,total,mouth:p.mouth,lift:p.lift,shake:p.shake};
   try{const ac=audio();if(ac){const t0=ac.currentTime+.03;calls.forEach(([st],i)=>callVoice(ac,t0+st,p,i));}}catch(e){console.warn(e);}}
 $('#bRoar').onclick=doRoar;
 $('#bRot').onclick=e=>{controls.autoRotate=!controls.autoRotate;e.currentTarget.setAttribute('aria-pressed',String(controls.autoRotate));};
@@ -1270,6 +1306,7 @@ function update(dt,t,now){
       cc.jaw=Math.max(cc.jaw,jw*roar.mouth);cc.head+=roar.lift*e;cc.neck+=roar.lift*.5*e;cc.hyaw*=1-e;if(roar.shake)cc.hyaw+=Math.sin(t*8)*.05*jw;}}
     if(tour&&tour.steps[tour.i].jaw)cc.jaw=Math.max(cc.jaw,.55);
     applyPose(D,cc,D.g);}
+    followHuman(dt);
     const fw=focusWorld(),dl=fw.clone().sub(lastFocus);lastFocus.copy(fw);
     camera.position.add(dl);controls.target.add(dl);if(tween){tween.fp.add(dl);tween.ft.add(dl);tween.tp.add(dl);tween.tt.add(dl);}
     if(tour&&!tween){const st=tour.steps[tour.i];if(st.anchor){const dlt=st.anchor.getWorldPosition(new V3()).sub(controls.target).multiplyScalar(Math.min(1,dt*1.5));controls.target.add(dlt);camera.position.add(dlt);}}
