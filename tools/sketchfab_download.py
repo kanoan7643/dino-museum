@@ -22,7 +22,6 @@ PICKS = {
     'diplodocus':      'b4d3a76625274284a56c4f9f872fcd2d',  # WWD diplodocus (animated) - seth the yutyrannus
     'iguanodon':       'bc5bf0d1284a4515ac7724fd138fd540',  # Dino Hunter Deadly Shores Iguanodon - SpikeDaBoi, 50 anims
     'gallimimus':      '3e0f606c92a748cebc4ea7031afdea8c',  # Dino Hunter Deadly Shores Gallimimus - PaPmont, 44 anims
-    'coelophysis':     '701a8ae582fd4f83b3e8c8f3fbf870de',  # accurate dilophosaurus rig - Hhhhhh66 (stand-in), 4 anims
 }
 API = 'https://api.sketchfab.com/v3/models/'
 
