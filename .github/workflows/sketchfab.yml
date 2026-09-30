@@ -9,9 +9,6 @@ on:
         description: 'Species to download, space separated (empty = all)'
         required: false
         default: ''
-  push:
-    branches: ['claude/**']
-    paths: ['.github/workflows/sketchfab.yml', 'tools/sketchfab_download.py']
 
 permissions:
   contents: write
